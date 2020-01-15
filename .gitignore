@@ -1,3 +1,8 @@
+# ETC
+# .idea/
+*.pt
+*.ptf
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
