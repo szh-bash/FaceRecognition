@@ -11,12 +11,12 @@ from frModels.vggnet.vgg16 import Vgg16
 
 from init import DataReader
 
-save_path = "/home/shenzhonghai/FaceClustering/models/Vgg16_no-softmax_"
+save_path = "/home/shenzhonghai/FaceClustering/models/Vgg16_no-softmax_2000/4000_ep"
 
 # set config
 data = DataReader()
 batch_size = 256
-Total = 50
+Total = 100
 learning_rate = 0.001
 
 
@@ -82,6 +82,7 @@ if __name__ == '__main__':
 
     print("Training Started!")
     iterations = 0
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[2000, 4000], gamma=0.1, last_epoch=-1)
     for epoch in range(Total):
         data_time, train_time = 0, 0
         pred, train_x, train_y, loss = None, None, None, None
@@ -105,6 +106,7 @@ if __name__ == '__main__':
             optimizer.zero_grad()   # zero the gradient buffers
             loss.backward()
             optimizer.step()    # Does the update
+            scheduler.step()
             tt = time.time() - batch_train_time
             train_time = train_time + tt
 
@@ -116,8 +118,10 @@ if __name__ == '__main__':
             pred = get_label(pred)
             acc = (pred == train_y).sum()
             test_time = time.time() - test_time
-            print('epoch: %d/%d, iters: %d, loss: %.5f, acc: %d, train_time: %.5f, test_time: %.5f, data_time: %.5f' %
-                  (epoch, Total, iterations, float(loss), int(acc), tt, test_time, dt))
+            print('epoch: %d/%d, iters: %d, lr: %.5f, '
+                  'loss: %.5f, acc: %d, train_time: %.5f, test_time: %.5f, data_time: %.5f' %
+                  (epoch, Total, iterations, scheduler.get_lr()[0],
+                   float(loss), int(acc), tt, test_time, dt))
 
             batch_data_time = time.time()
 
@@ -127,7 +131,7 @@ if __name__ == '__main__':
             # acc = (pred == train_y).sum()
             print('epoch: %d/%d, loss: %.5f, train_time: %.5f, data_time: %.5f' %
                   (epoch, Total, float(loss), train_time, data_time))
-        if epoch % 50 == 0:
+        if epoch % 10 == 0:
             torch.save(net.state_dict(), save_path+str(epoch)+'.pt')
             print('Model saved to %s' % (save_path+str(epoch)+'.pt'))
 
