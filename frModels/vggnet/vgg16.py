@@ -78,7 +78,7 @@ class Vgg16(nn.Module):
         out = self.conv5_3(out)  # 12
         out = F.relu(out)
         out = self.maxpool5(out)  # 6
-
+        # out.register_hook(lambda g: print('hidden: ', g))
 
         # 展平
         out = out.view(in_size, -1)
@@ -90,6 +90,6 @@ class Vgg16(nn.Module):
         out = self.fc3(out)
 
         # out = F.log_softmax(out, dim=1)
-        out = F.softmax(out, dim=1)
+        # out = F.softmax(out, dim=1)
 
         return out

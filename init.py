@@ -29,8 +29,8 @@ class DataReader(Dataset):
         person += 1
         if person % 500 == 0:
             print(person)
-#         if person == 1000:
-#             break
+        # if person == 1000:
+        #     break
 
     dataset = np.transpose(np.array(dataset, dtype=float), [0, 3, 1, 2])
     label = np.array(label)
