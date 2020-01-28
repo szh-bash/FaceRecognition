@@ -11,12 +11,12 @@ from frModels.vggnet.vgg16 import Vgg16
 
 from init import DataReader
 
-save_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_bs-128_lr-8|12k|15k_ep'
+save_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_bs-128_lr-400_ep'
 
 # set config
 data = DataReader()
 batch_size = 128
-Total = 160
+Total = 260
 learning_rate = 0.001
 
 
@@ -82,7 +82,7 @@ if __name__ == '__main__':
 
     print("Training Started!")
     iterations = 0
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[800, 12000, 15000], gamma=0.1, last_epoch=-1)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[400], gamma=0.1, last_epoch=-1)
     for epoch in range(Total):
         data_time, train_time = 0, 0
         pred, train_x, train_y, loss = None, None, None, None
@@ -113,12 +113,12 @@ if __name__ == '__main__':
             if iterations % 1 == 0:
                 test_time = time.time()
                 pred = get_label(pred)
-                acc = (pred == train_y).sum()/train_y.size(0)
+                acc = (pred == train_y).sum().float()/train_y.size(0)
                 test_time = time.time() - test_time
                 print('epoch: %d/%d, iters: %d, lr: %.6f, '
                       'loss: %.5f, acc: %.3f, train_time: %.4f, test_time: %.5f, data_time: %.4f' %
                       (epoch, Total, iterations, scheduler.get_lr()[0],
-                       float(loss), acc, tt, test_time, dt))
+                       float(loss), float(acc), tt, test_time, dt))
 
             batch_data_time = time.time()
 
@@ -128,7 +128,7 @@ if __name__ == '__main__':
             # acc = (pred == train_y).sum()
             print('epoch: %d/%d, loss: %.5f, train_time: %.5f, data_time: %.5f' %
                   (epoch, Total, float(loss), train_time, data_time))
-        if epoch % 10 == 0:
+        if epoch % 20 == 0:
             torch.save(net.state_dict(), save_path+str(epoch)+'.pt')
             print('Model saved to %s' % (save_path+str(epoch)+'.pt'))
 
