@@ -11,12 +11,12 @@ from frModels.vggnet.vgg16 import Vgg16
 
 from init import DataReader
 
-save_path = '/home/shenzhonghai/FaceClustering/models/Vgg16_bs-128_lr-800|9500_ep'
+save_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_bs-128_lr-8|12k|15k_ep'
 
 # set config
 data = DataReader()
 batch_size = 128
-Total = 120
+Total = 160
 learning_rate = 0.001
 
 
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     net = Vgg16()
     device = torch.device("cuda:0")
     if torch.cuda.device_count() > 1:
-        devices_ids = [0, 1, 2, 3]
+        devices_ids = [0, 1, 2, 3, 4, 5, 6]
         net = nn.DataParallel(net, device_ids=devices_ids)
         print("Let's use %d/%d GPUs!" % (len(devices_ids), torch.cuda.device_count()))
     net.to(device)
@@ -82,7 +82,7 @@ if __name__ == '__main__':
 
     print("Training Started!")
     iterations = 0
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[800, 9500], gamma=0.1, last_epoch=-1)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[800, 12000, 15000], gamma=0.1, last_epoch=-1)
     for epoch in range(Total):
         data_time, train_time = 0, 0
         pred, train_x, train_y, loss = None, None, None, None
@@ -119,8 +119,8 @@ if __name__ == '__main__':
                 pred = get_label(pred)
                 acc = (pred == train_y).sum()
                 test_time = time.time() - test_time
-                print('epoch: %d/%d, iters: %d, lr: %.5f, '
-                      'loss: %.5f, acc: %d, train_time: %.5f, test_time: %.5f, data_time: %.5f' %
+                print('epoch: %d/%d, iters: %d, lr: %.6f, '
+                      'loss: %.5f, acc: %d, train_time: %.4f, test_time: %.5f, data_time: %.4f' %
                       (epoch, Total, iterations, scheduler.get_lr()[0],
                        float(loss), int(acc), tt, test_time, dt))
 
