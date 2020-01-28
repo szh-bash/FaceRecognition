@@ -89,11 +89,7 @@ if __name__ == '__main__':
 
         batch_data_time = time.time()
         for i, (inputs, labels) in enumerate(data_loader):
-            # inputs, labels = Variable(inputs), Variable(labels)
             train_x, train_y = inputs.to(device), labels.to(device)
-            # train_x = Variable(train_x)
-            # print(train_y)
-            # train_x, train_y = Variable(train_x), Variable(train_y)
             dt = time.time() - batch_data_time
             data_time = data_time + dt
 
@@ -117,12 +113,12 @@ if __name__ == '__main__':
             if iterations % 1 == 0:
                 test_time = time.time()
                 pred = get_label(pred)
-                acc = (pred == train_y).sum()
+                acc = (pred == train_y).sum()/train_y.size(0)
                 test_time = time.time() - test_time
                 print('epoch: %d/%d, iters: %d, lr: %.6f, '
-                      'loss: %.5f, acc: %d, train_time: %.4f, test_time: %.5f, data_time: %.4f' %
+                      'loss: %.5f, acc: %.3f, train_time: %.4f, test_time: %.5f, data_time: %.4f' %
                       (epoch, Total, iterations, scheduler.get_lr()[0],
-                       float(loss), int(acc), tt, test_time, dt))
+                       float(loss), acc, tt, test_time, dt))
 
             batch_data_time = time.time()
 
