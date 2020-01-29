@@ -11,12 +11,12 @@ from frModels.vggnet.vgg16 import Vgg16
 
 from init import DataReader
 
-save_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_bs-128_lr-8|15k|18k_ep'
+save_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_bs-128_lr-4|16k|19k_ep'
 
 # set config
 data = DataReader()
 batch_size = 128
-Total = 190
+Total = 200
 learning_rate = 0.001
 
 
@@ -82,7 +82,7 @@ if __name__ == '__main__':
 
     print("Training Started!")
     iterations = 0
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[800, 15000, 18000], gamma=0.1, last_epoch=-1)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[400, 16000, 19000], gamma=0.1, last_epoch=-1)
     for epoch in range(Total):
         data_time, train_time = 0, 0
         pred, train_x, train_y, loss = None, None, None, None
@@ -113,7 +113,7 @@ if __name__ == '__main__':
             if iterations % 1 == 0:
                 test_time = time.time()
                 pred = get_label(pred)
-                acc = (pred == train_y).sum().float()/train_y.size(0)*100
+                acc = (pred == train_y).sum().float() / train_y.size(0) * 100
                 test_time = time.time() - test_time
                 print('epoch: %d/%d, iters: %d, lr: %.6f, '
                       'loss: %.5f, acc: %.3f, train_time: %.4f, test_time: %.5f, data_time: %.4f' %
