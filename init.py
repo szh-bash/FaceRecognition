@@ -3,9 +3,8 @@ import os
 import time
 import torch
 import numpy as np
-# from PIL import Image
-from torch.utils.data import Dataset, DataLoader, TensorDataset
-from progressbar import *
+from torch.utils.data import Dataset
+import progressbar as pb
 # person 5749 Total 13233 (lfw)
 
 # filePath = "/data/shenzhonghai/lfw/lfw-deepfunneled"
@@ -20,9 +19,12 @@ class DataReader(Dataset):
     name = []
     person = 0
     rng = np.random
-    widgets = ['Data Loading: ', Percentage(), ' ', Bar('#'), ' ', Timer(),
-               ' ', ETA(), ' ', FileTransferSpeed()]
-    pgb = ProgressBar(widgets=widgets, maxval=10 * 5749).start()
+    widgets = ['Loading: ', pb.Percentage(),
+               ' ', pb.Bar(marker='>', left='[', right=']', fill='='),
+               ' ', pb.Timer(),
+               ' ', pb.ETA(),
+               ' ', pb.FileTransferSpeed()]
+    pgb = pb.ProgressBar(widgets=widgets, maxval=10 * 5749).start()
     for allDir in pathDir:
         child = os.path.join('%s/%s' % (filePath, allDir))
         childDir = os.listdir(child)
@@ -43,6 +45,7 @@ class DataReader(Dataset):
     print('data:', dataset.shape)
     print('label:', label.shape)
     print('label_value:', label[:5])
+    print('Data Shape Transposed!')
 
     def __init__(self):
         self.x = torch.FloatTensor(self.dataset)

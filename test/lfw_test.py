@@ -52,8 +52,11 @@ data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=False, pin
 print('Calculating Feature Map...')
 ids = 0
 Total = (13233 - 1) / batch_size + 1
-widgets = ['Progress: ', pb.Percentage(), ' ', pb.Bar('#'), ' ', pb.Timer(),
-           ' ', pb.ETA(), ' ', pb.FileTransferSpeed()]
+widgets = [' ', pb.Percentage(),
+           ' ', pb.Bar(marker='>', left='[', right=']', fill='='),
+           ' ', pb.Timer(),
+           ' ', pb.ETA(),
+           ' ', pb.FileTransferSpeed()]
 pgb = pb.ProgressBar(widgets=widgets, maxval=Total).start()
 for i, (inputs, labels) in enumerate(data_loader):
     feat = model(inputs.to(device))
