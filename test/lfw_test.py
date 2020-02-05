@@ -8,7 +8,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
-from progressbar import *
+# from progressbar import *
+import progressbar as pb
 
 sys.path.append("..")
 from init import DataReader
@@ -45,21 +46,21 @@ print(model)
 
 # load data
 feat_path = '/data/shenzhonghai/lfw/lfw-feat/'
-batch_size = 16
+batch_size = 1
 data = DataReader()
 data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=False, pin_memory=True)
 print('Calculating Feature Map...')
 ids = 0
 Total = (13233 - 1) / batch_size + 1
-widgets = ['Progress: ', Percentage(), ' ', Bar('#'), ' ', Timer(),
-           ' ', ETA(), ' ', FileTransferSpeed()]
-pgb = ProgressBar(widgets=widgets, maxval=10 * Total).start()
+widgets = ['Progress: ', pb.Percentage(), ' ', pb.Bar('#'), ' ', pb.Timer(),
+           ' ', pb.ETA(), ' ', pb.FileTransferSpeed()]
+pgb = pb.ProgressBar(widgets=widgets, maxval=Total).start()
 for i, (inputs, labels) in enumerate(data_loader):
     feat = model(inputs.to(device))
     # print("img %d done! %s" % (labels[0], data.name[ids]))
     save_feat(feat, ids, len(inputs), feat_path)
     ids += len(inputs)
-    pgb.update(i * 10 + 1)
+    pgb.update(i)
 pgb.finish()
 print('Feature Map saved to \'%s\' successfully!' % feat_path[:-1])
 exit(0)
