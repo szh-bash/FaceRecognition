@@ -3,11 +3,9 @@ import time
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import Dataset, DataLoader
-from torch.autograd import Variable
+from torch.utils.data import DataLoader
 
 from frModels.vggnet.vgg16 import Vgg16
-# from utils.DataHandler import Augment, DataPipe
 
 from init import DataReader
 

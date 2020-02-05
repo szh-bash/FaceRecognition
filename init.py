@@ -1,13 +1,11 @@
 import cv2
 import os
-import time
 import torch
 import numpy as np
 from torch.utils.data import Dataset
 import progressbar as pb
 # person 5749 Total 13233 (lfw)
 
-# filePath = "/data/shenzhonghai/lfw/lfw-deepfunneled"
 filePath = "/data/shenzhonghai/lfw/lfw"
 pathDir = os.listdir(filePath)
 print('data path:', filePath)
