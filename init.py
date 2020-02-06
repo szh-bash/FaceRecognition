@@ -22,7 +22,7 @@ class DataReader(Dataset):
                ' ', pb.Timer(),
                ' ', pb.ETA(),
                ' ', pb.FileTransferSpeed()]
-    pgb = pb.ProgressBar(widgets=widgets, maxval=10 * 5749).start()
+    pgb = pb.ProgressBar(widgets=widgets, maxval=5749).start()
     for allDir in pathDir:
         child = os.path.join('%s/%s' % (filePath, allDir))
         childDir = os.listdir(child)
@@ -31,7 +31,7 @@ class DataReader(Dataset):
             dataset.append(cv2.imread(son))
             label.append(person)
             name.append(son)
-        pgb.update(person * 10 + 1)
+        pgb.update(person)
         person += 1
         # if person == 1000:
         #     break
