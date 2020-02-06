@@ -11,11 +11,11 @@ from init import DataReader
 from frModels.vggnet.vgg16 import Vgg16
 
 
-def save_feat(ft, index, lim, path):
+def save_feat(ft, name_list, lim, path):
     ft = ft.cpu()
     for dx in range(lim):
-        filepath, filename = os.path.split(data.name[index+dx])
-        loc = re.search(r'[\d]', filename).span()
+        filepath, filename = os.path.split(name_list[dx])
+        loc = re.search(r'[\d]+', filename).span()
         name = filename[0:loc[0]-1]
         idx = int(filename[loc[0]:loc[1]])
         if not os.path.exists(path+name):
@@ -36,8 +36,8 @@ print(model)
 
 # load data
 feat_path = '/data/shenzhonghai/lfw/lfw-feat/'
-batch_size = 1
-data = DataReader()
+batch_size = 32
+data = DataReader('test')
 data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=False, pin_memory=True)
 print('Calculating Feature Map...')
 ids = 0
@@ -48,10 +48,9 @@ widgets = [' ', pb.Percentage(),
            ' ', pb.ETA(),
            ' ', pb.FileTransferSpeed()]
 pgb = pb.ProgressBar(widgets=widgets, maxval=Total).start()
-for i, (inputs, labels) in enumerate(data_loader):
+for i, (inputs, labels, names) in enumerate(data_loader):
     feat = model(inputs.to(device))
-    save_feat(feat, ids, len(inputs), feat_path)
-    ids += len(inputs)
+    save_feat(feat, names, len(inputs), feat_path)
     pgb.update(i)
 pgb.finish()
 print('Feature Map saved to \'%s\' successfully!' % feat_path[:-1])
