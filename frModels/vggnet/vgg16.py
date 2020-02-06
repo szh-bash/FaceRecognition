@@ -83,12 +83,12 @@ class Vgg16(nn.Module):
 
         # 展平
         out = out.view(in_size, -1)
+        if self.status == 'test':
+            return out
 
         out = self.fc1(out)
         out = F.relu(out)
         out = self.fc2(out)
-        if self.status == 'test':
-            return out
         out = F.relu(out)
         out = self.fc3(out)
 
