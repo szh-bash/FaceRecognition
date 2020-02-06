@@ -57,7 +57,7 @@ class DataReader(Dataset):
         if self.st == 'train':
             return self.x[index, :, x:x + 222, y:y + 222], self.y[index]
         elif self.st == 'test':
-            return self.x[index, :, x:x + 222, y:y + 222], self.y[index], DataReader.name[y]
+            return self.x[index, :, x:x + 222, y:y + 222], self.y[index], DataReader.name[index]
         else:
             exit(-1)
 
