@@ -40,15 +40,14 @@ class DataReader(Dataset):
 
     dataset = np.transpose(np.array(dataset, dtype=float), [0, 3, 1, 2])
     label = np.array(label)
-    print('data:', dataset.shape)
-    print('label:', label.shape)
-    print('label_value:', label[:5])
-    print('Data Shape Transposed!')
+    print('Img:', dataset.shape)
+    print('Label:', label.shape)
+    print('Label_value:', label[:5])
 
     def __init__(self, st):
-        self.x = torch.FloatTensor(self.dataset)
-        self.y = torch.LongTensor(self.label)
-        self.len = self.dataset.shape[0]
+        self.x = torch.FloatTensor(DataReader.dataset)
+        self.y = torch.LongTensor(DataReader.label)
+        self.len = DataReader.dataset.shape[0]
         self.st = st
 
     def __getitem__(self, index):

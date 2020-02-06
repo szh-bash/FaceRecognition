@@ -39,6 +39,8 @@ feat_path = '/data/shenzhonghai/lfw/lfw-feat/'
 batch_size = 32
 data = DataReader('test')
 data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=False, pin_memory=True)
+
+# get feat
 print('Calculating Feature Map...')
 ids = 0
 Total = (13233 - 1) / batch_size + 1
@@ -50,7 +52,7 @@ widgets = [' ', pb.Percentage(),
 pgb = pb.ProgressBar(widgets=widgets, maxval=Total).start()
 for i, (inputs, labels, names) in enumerate(data_loader):
     feat = model(inputs.to(device))
-    save_feat(feat, names, len(inputs), feat_path)
+    save_feat(feat, names, labels.size(0), feat_path)
     pgb.update(i)
 pgb.finish()
 print('Feature Map saved to \'%s\' successfully!' % feat_path[:-1])
