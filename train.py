@@ -59,7 +59,7 @@ def get_max_gradient(g):
 
 if __name__ == '__main__':
     # Some Args setting
-    net = Vgg16()
+    net = Vgg16('train')
     device = torch.device("cuda:0")
     if torch.cuda.device_count() > 1:
         devices_ids = [0, 1, 2, 3, 4, 5, 6]

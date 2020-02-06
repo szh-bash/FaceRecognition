@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 class Vgg16(nn.Module):
 
-    def __init__(self):
+    def __init__(self, st):
         super(Vgg16, self).__init__()
 
         # 3 * 224 * 224
@@ -37,6 +37,8 @@ class Vgg16(nn.Module):
         self.fc2 = nn.Linear(4096, 4096)
         self.fc3 = nn.Linear(4096, 5749)
         # softmax 1 * 1 * 1000
+
+        self.status = st
 
     def forward(self, x):
         # x.size(0)即为batch_size
@@ -85,6 +87,8 @@ class Vgg16(nn.Module):
         out = self.fc1(out)
         out = F.relu(out)
         out = self.fc2(out)
+        if self.status == 'test':
+            return out
         out = F.relu(out)
         out = self.fc3(out)
 
