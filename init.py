@@ -45,15 +45,21 @@ class DataReader(Dataset):
     print('label_value:', label[:5])
     print('Data Shape Transposed!')
 
-    def __init__(self):
+    def __init__(self, st):
         self.x = torch.FloatTensor(self.dataset)
         self.y = torch.LongTensor(self.label)
         self.len = self.dataset.shape[0]
+        self.st = st
 
     def __getitem__(self, index):
         x = int(self.rng.rand() * (250-222))
         y = int(self.rng.rand() * (250-222))
-        return self.x[index, :, x:x + 222, y:y + 222], self.y[index]
+        if self.st == 'train':
+            return self.x[index, :, x:x + 222, y:y + 222], self.y[index]
+        elif self.st == 'test':
+            return self.x[index, :, x:x + 222, y:y + 222], self.y[index], DataReader.name[y]
+        else:
+            exit(-1)
 
     def __len__(self):
         return self.len

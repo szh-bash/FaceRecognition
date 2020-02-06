@@ -12,7 +12,7 @@ from init import DataReader
 save_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_bs-128_lr-4|16k|19k_ep'
 
 # set config
-data = DataReader()
+data = DataReader('train')
 batch_size = 128
 Total = 200
 learning_rate = 0.001
