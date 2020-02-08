@@ -28,6 +28,7 @@ def get_distance(path0, path1):
         feat1.append(float(val))
     file.close()
     feat0, feat1 = np.array(feat0), np.array(feat1)
+    # return np.argmax(feat0) == np.argmax(feat1)
     # return np.linalg.norm(feat0-feat1)
     return np.sum(np.multiply(feat0, feat1)) / (np.linalg.norm(feat0) * np.linalg.norm(feat1))
 
@@ -67,10 +68,12 @@ def get_acc(threshold_list, cases):
 test_total = get_img_pairs_list()
 dist = np.array(dist)
 ground_truth = np.array(ground_truth)
-# test_acc = get_acc([2333, 3333, 4444, 5555, 6666, 7777, 8888, 9999, 12222, 15000, 23333], test_total)
+# test_acc = get_acc([500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700], test_total)
 test_acc = get_acc([0.8, 0.85, 0.9, 0.95, 0.96, 0.9625, 0.965, 0.96625, 0.9675, 0.97, 0.98], test_total)
+# test_acc = get_acc([0.2, 0.25, 0.3, 0.35, 0.4], test_total)
 # test_acc = get_acc([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95], test_total)
 print(test_acc)
+# print((dist == ground_truth).sum()/test_total*100)
 exit(0)
 
 

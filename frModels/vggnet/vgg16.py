@@ -3,8 +3,9 @@ import torch.nn.functional as F
 
 
 class Vgg16(nn.Module):
+    loss_type = ''
 
-    def __init__(self, st):
+    def __init__(self, st, loss):
         super(Vgg16, self).__init__()
 
         # 3 * 224 * 224
@@ -39,6 +40,7 @@ class Vgg16(nn.Module):
         # softmax 1 * 1 * 1000
 
         self.status = st
+        loss_type = loss
 
     def forward(self, x):
         # x.size(0)即为batch_size
@@ -89,6 +91,8 @@ class Vgg16(nn.Module):
         out = self.fc1(out)
         out = F.relu(out)
         out = self.fc2(out)
+        if Vgg16.loss_type == 'arcface':
+            return out
         out = F.relu(out)
         out = self.fc3(out)
 

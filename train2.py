@@ -10,12 +10,12 @@ from loss import ArcMarginProduct as Arcface
 
 from init import DataReader
 
-save_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_af_128_3_ep'
+save_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_af_128_3|20k_ep'
 
 # set config
 data = DataReader('train')
 batch_size = 128
-Total = 360
+Total = 240
 learning_rate = 0.001
 
 
@@ -82,7 +82,7 @@ if __name__ == '__main__':
 
     print("Training Started!")
     iterations = 0
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[300], gamma=0.1, last_epoch=-1)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[300, 20000], gamma=0.1, last_epoch=-1)
     for epoch in range(Total):
         data_time, train_time = 0, 0
         pred, train_x, train_y, loss = None, None, None, None
