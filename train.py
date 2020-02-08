@@ -130,7 +130,7 @@ if __name__ == '__main__':
             # acc = (pred == train_y).sum()
             print('epoch: %d/%d, loss: %.5f, train_time: %.5f, data_time: %.5f' %
                   (epoch, Total, float(loss), train_time, data_time))
-        if epoch > 120 and epoch % 10 == 0:
+        if epoch > 120 and epoch % 20 == 0:
             torch.save(net.state_dict(), save_path+str(epoch)+'.pt')
             print('Model saved to %s' % (save_path+str(epoch)+'.pt'))
 
