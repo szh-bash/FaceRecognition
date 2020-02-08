@@ -71,6 +71,7 @@ test_total = get_img_pairs_list()
 dist = np.array(dist)
 ground_truth = np.array(ground_truth)
 
+# Figure out test_acc
 length = 10000
 thresholds_left, thresholds_right = 0.9, 1.0
 thresholds = np.linspace(thresholds_left, thresholds_right, length)
@@ -78,18 +79,33 @@ test_acc = get_acc(thresholds, test_total)
 print('Max Value of test_acc is %.3f with threshold=%.5f' % (test_acc.max(), thresholds[test_acc.argmax()]))
 # print((dist == ground_truth).sum()/test_total*100)
 
+# Roc
+index = np.argsort(dist)
+count = 0
+true_ratio = []
+for idx in index:
+    if ground_truth[idx]:
+        count += 1
+        if len(true_ratio) > 0:
+            true_ratio[-1] += 1 / test_total * 2
+    else:
+        true_ratio.append(count / test_total * 2)
+true_ratio[-1] = 1.0
+# print(true_ratio)
+
+# plotting test_acc
 fig, ax1 = plt.subplots()
-# ax2 = ax1.twinx()
+ax2 = ax1.twinx()
 ax1.plot(thresholds, test_acc, label='test_acc', color='b')
-# ax2.plot(x, acc, label='roc', color='r')
+ax2.plot(np.linspace(thresholds_left, thresholds_right, test_total//2), true_ratio, label='roc', color='r')
 ax1.set_xlim(thresholds_left, thresholds_right)
 ax1.set_ylim(45, 100)
-# ax2.set_ylim(0., 100.)
+ax2.set_ylim(0., 1.)
 ax1.set_ylabel('test_acc')
-# ax2.set_ylabel('roc')
+ax2.set_ylabel('roc')
 plt.xlabel('thresholds')
 plt.title('test_acc/roc')
-fig.legend(bbox_to_anchor=(1, 0.5), bbox_transform=ax1.transAxes)
+fig.legend(bbox_to_anchor=(0.6, 1.), bbox_transform=ax1.transAxes)
 
 plt.show()
 
