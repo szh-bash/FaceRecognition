@@ -53,7 +53,9 @@ def get_img_pairs_list():
         pgb.update(i)
     pgb.finish()
     file.close()
-    print(dist, '\n', ground_truth)
+    # print(dist, '\n', ground_truth)
+    print(dist[:300])
+    print(dist[-300:])
     return total
 
 
@@ -68,13 +70,29 @@ def get_acc(threshold_list, cases):
 test_total = get_img_pairs_list()
 dist = np.array(dist)
 ground_truth = np.array(ground_truth)
-# test_acc = get_acc([500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700], test_total)
-# test_acc = get_acc([0.8, 0.85, 0.9, 0.95, 0.96, 0.9625, 0.965, 0.96625, 0.9675, 0.97, 0.98], test_total)
-test_acc = get_acc([0.96, 0.965, 0.97, 0.971, 0.972, 0.973, 0.974, 0.975, 0.976], test_total)
-# test_acc = get_acc([0.2, 0.25, 0.3, 0.35, 0.4], test_total)
-# test_acc = get_acc([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95], test_total)
-print(test_acc)
+
+length = 10000
+thresholds_left, thresholds_right = 0.9, 1.0
+thresholds = np.linspace(thresholds_left, thresholds_right, length)
+test_acc = get_acc(thresholds, test_total)
+print('Max Value of test_acc is %.3f with threshold=%.5f' % (test_acc.max(), thresholds[test_acc.argmax()]))
 # print((dist == ground_truth).sum()/test_total*100)
+
+fig, ax1 = plt.subplots()
+# ax2 = ax1.twinx()
+ax1.plot(thresholds, test_acc, label='test_acc', color='b')
+# ax2.plot(x, acc, label='roc', color='r')
+ax1.set_xlim(thresholds_left, thresholds_right)
+ax1.set_ylim(45, 100)
+# ax2.set_ylim(0., 100.)
+ax1.set_ylabel('test_acc')
+# ax2.set_ylabel('roc')
+plt.xlabel('thresholds')
+plt.title('test_acc/roc')
+fig.legend(bbox_to_anchor=(1, 0.5), bbox_transform=ax1.transAxes)
+
+plt.show()
+
 exit(0)
 
 
