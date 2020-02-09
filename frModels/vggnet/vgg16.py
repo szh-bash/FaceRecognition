@@ -40,7 +40,7 @@ class Vgg16(nn.Module):
         # softmax 1 * 1 * 1000
 
         self.status = st
-        loss_type = loss
+        Vgg16.loss_type = loss
 
     def forward(self, x):
         # x.size(0)即为batch_size

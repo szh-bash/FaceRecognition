@@ -4,59 +4,65 @@ import torch
 import numpy as np
 from torch.utils.data import Dataset
 import progressbar as pb
-# person 5749 Total 13233 (lfw)
+# lfw: 5749, 13233
+# webface: 10575, 494414
 
-filePath = "/data/shenzhonghai/lfw/lfw"
-pathDir = os.listdir(filePath)
-print('data path:', filePath)
+lfwPath = '/dev/shm/lfw'
+webfacePath = '/dev/shm/CASIA-WebFace'
 
 
 class DataReader(Dataset):
-    dataset = []
-    label = []
-    name = []
-    person = 0
-    rng = np.random
-    widgets = ['Loading: ', pb.Percentage(),
-               ' ', pb.Bar(marker='>', left='[', right=']', fill='='),
-               ' ', pb.Timer(),
-               ' ', pb.ETA(),
-               ' ', pb.FileTransferSpeed()]
-    pgb = pb.ProgressBar(widgets=widgets, maxval=5749).start()
-    for allDir in pathDir:
-        child = os.path.join('%s/%s' % (filePath, allDir))
-        childDir = os.listdir(child)
-        for allSon in childDir:
-            son = os.path.join('%s/%s' % (child, allSon))
-            dataset.append(cv2.imread(son))
-            label.append(person)
-            name.append(son)
-        pgb.update(person)
-        person += 1
-        # if person == 1000:
-        #     break
-    pgb.finish()
-    print('Data Loaded!')
 
-    dataset = np.transpose(np.array(dataset, dtype=float), [0, 3, 1, 2])
-    label = np.array(label)
-    print('Img:', dataset.shape)
-    print('Label:', label.shape)
-    print('Label_value:', label[:5])
-
-    def __init__(self, st):
-        self.x = torch.FloatTensor(DataReader.dataset)
-        self.y = torch.LongTensor(DataReader.label)
-        self.len = DataReader.dataset.shape[0]
+    def __init__(self, st, data_name):
         self.st = st
+        self.data_name = data_name
+        filepath = lfwPath if data_name == 'lfw' else webfacePath
+        path_dir = os.listdir(filepath)
+        print('data path:', filepath)
+        self.dataset = []
+        self.label = []
+        self.name = []
+        self.person = 0
+        self.rng = np.random
+        widgets = ['Loading: ', pb.Percentage(),
+                   ' ', pb.Bar(marker='>', left='[', right=']', fill='='),
+                   ' ', pb.Timer(),
+                   ' ', pb.ETA(),
+                   ' ', pb.FileTransferSpeed()]
+        pgb = pb.ProgressBar(widgets=widgets, maxval=5749 if data_name == 'lfw' else 494414).start()
+        self.len = 0
+        for allDir in path_dir:
+            child = os.path.join('%s/%s' % (filepath, allDir))
+            child_dir = os.listdir(child)
+            for allSon in child_dir:
+                son = os.path.join('%s/%s' % (child, allSon))
+                # self.dataset.append(cv2.imread(son))
+                self.label.append(self.person)
+                self.name.append(son)
+                pgb.update(self.len)
+                self.len += 1
+            self.person += 1
+            # if person == 1000:
+            #     break
+        pgb.finish()
+        print('Data Loaded!')
+
+        # self.dataset = np.transpose(np.array(self.dataset, dtype=float), [0, 3, 1, 2])
+        self.label = np.array(self.label)
+        # print('Img:', self.dataset.shape)
+        print('Label:', self.label.shape)
+        print('Label_value:', self.label[345:350])
+        # self.x = torch.FloatTensor(self.dataset)
+        self.y = torch.LongTensor(self.label)
 
     def __getitem__(self, index):
+        img = (torch.FloatTensor(np.transpose(np.array(cv2.imread(self.name[index]), dtype=float), [2, 0, 1])) - 127.5) / 255.0
         x = int(self.rng.rand() * (250-222))
         y = int(self.rng.rand() * (250-222))
         if self.st == 'train':
-            return self.x[index, :, x:x + 222, y:y + 222], self.y[index]
+            return img[:, x:x + 222, y:y + 222], self.y[index]
         elif self.st == 'test':
-            return self.x[index, :, x:x + 222, y:y + 222], self.y[index], DataReader.name[index]
+            return img[:, x:x + 222, y:y + 222], self.y[index], self.name[index]
         else:
             exit(-1)
 
