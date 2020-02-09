@@ -5,7 +5,7 @@ import progressbar as pb
 
 
 pairs_txt_path = '/data/shenzhonghai/lfw/pairs.txt'
-feat_path = '/data/shenzhonghai/lfw/lfw-feat/'
+feat_path = '/data/shenzhonghai/lfw/lfw-feat-af-3|20k-conv/'
 dist = []
 ground_truth = []
 widgets = ['Testing: ', pb.Percentage(),
@@ -16,8 +16,6 @@ widgets = ['Testing: ', pb.Percentage(),
 
 
 def get_distance(path0, path1):
-    # feat0 = pd.read_csv(path0, index_col=None, header=None)
-    # feat1 = pd.read_csv(path1, index_col=None, header=None)
     feat0, feat1 = [], []
     file = open(path0)
     for val in file:
@@ -29,7 +27,7 @@ def get_distance(path0, path1):
     file.close()
     feat0, feat1 = np.array(feat0), np.array(feat1)
     # return np.argmax(feat0) == np.argmax(feat1)
-    # return np.linalg.norm(feat0-feat1)
+    # return -np.linalg.norm(feat0-feat1)
     return np.sum(np.multiply(feat0, feat1)) / (np.linalg.norm(feat0) * np.linalg.norm(feat1))
 
 
@@ -41,7 +39,7 @@ def get_img_pairs_list():
     times, batches = id_pattern.findall(st)[0:2]
     times, batches = int(times), int(batches)
     # print(times, batches)
-    total = times * batches
+    total = times * batches * 2
     pgb = pb.ProgressBar(widgets=widgets, maxval=total).start()
     for i in range(total):
         st = file.readline()
@@ -73,14 +71,15 @@ ground_truth = np.array(ground_truth)
 
 # Figure out test_acc
 length = 10000
-thresholds_left, thresholds_right = 0.9, 1.0
+thresholds_left, thresholds_right = 0.0, 1.0
 thresholds = np.linspace(thresholds_left, thresholds_right, length)
 test_acc = get_acc(thresholds, test_total)
-print('Max Value of test_acc is %.3f with threshold=%.5f' % (test_acc.max(), thresholds[test_acc.argmax()]))
+print('Max test_acc: %.3f (threshold=%.5f)' % (test_acc.max(), thresholds[test_acc.argmax()]))
 # print((dist == ground_truth).sum()/test_total*100)
 
 # Roc
 index = np.argsort(dist)
+roc = 0
 count = 0
 true_ratio = []
 for idx in index:
@@ -89,9 +88,12 @@ for idx in index:
         if len(true_ratio) > 0:
             true_ratio[-1] += 1 / test_total * 2
     else:
+        if len(true_ratio) > 0:
+            roc += count * pow(1 / test_total * 2, 2)
         true_ratio.append(count / test_total * 2)
 true_ratio[-1] = 1.0
 # print(true_ratio)
+print('ROC: %.5f' % roc)
 
 # plotting test_acc
 fig, ax1 = plt.subplots()
@@ -108,39 +110,3 @@ plt.title('test_acc/roc')
 fig.legend(bbox_to_anchor=(0.6, 1.), bbox_transform=ax1.transAxes)
 
 plt.show()
-
-exit(0)
-
-
-def plot_roc(predStrengths, classLabels):
-    cur = (0.0, 0.0)
-    numPosClass = np.sum(np.array(classLabels) == 1.0)
-    yStep = 1.0/numPosClass
-    xStep = 1.0/(len(classLabels)-numPosClass)
-    print(np.array(predStrengths.flatten()))
-    sortedIndicies = np.argsort(-np.array(predStrengths.flatten()))
-    print(sortedIndicies)
-    fig = plt.figure()
-    fig.clf()
-    ySum = 0.0
-    ax = plt.subplot(111)
-    for index in sortedIndicies:
-        if classLabels[index] == 1.0:
-            delY = yStep; delX=0
-        else:
-            delY = 0; delX = xStep
-            ySum += cur[1]
-        ax.plot([cur[0], cur[0]+delX], [cur[1], cur[1]+delY], c='b')
-        cur = (cur[0]+delX, cur[1]+delY)
-        print(cur)
-    ax.plot([0, 1], [0, 1], 'b--')
-    ax.axis([0, 1, 0, 1])
-    plt.xlabel('False Positve Rate')
-    plt.ylabel('True Postive Rate')
-    plt.title('ROC curve for AdaBoost Horse Colic Detection System')
-    ax.axis([0, 1, 0, 1])
-    plt.show()
-    print('the Area under the curve is:', ySum*xStep)
-
-
-plot_roc(100, [0, 1])
