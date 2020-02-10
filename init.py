@@ -29,14 +29,15 @@ class DataReader(Dataset):
                    ' ', pb.Timer(),
                    ' ', pb.ETA(),
                    ' ', pb.FileTransferSpeed()]
-        pgb = pb.ProgressBar(widgets=widgets, maxval=5749 if data_name == 'lfw' else 494414).start()
+        pgb = pb.ProgressBar(widgets=widgets, maxval=13233 if data_name == 'lfw' else 494414).start()
         self.len = 0
         for allDir in path_dir:
             child = os.path.join('%s/%s' % (filepath, allDir))
             child_dir = os.listdir(child)
             for allSon in child_dir:
                 son = os.path.join('%s/%s' % (child, allSon))
-                # self.dataset.append(cv2.imread(son))
+                if self.st == 'test':
+                    self.dataset.append(cv2.imread(son))
                 self.label.append(self.person)
                 self.name.append(son)
                 pgb.update(self.len)
@@ -46,23 +47,23 @@ class DataReader(Dataset):
             #     break
         pgb.finish()
         print('Data Loaded!')
-
-        # self.dataset = np.transpose(np.array(self.dataset, dtype=float), [0, 3, 1, 2])
+        if self.st == 'test':
+            self.dataset = np.transpose(np.array(self.dataset, dtype=float), [0, 3, 1, 2])
+            print('Img:', self.dataset.shape)
+            self.x = (torch.FloatTensor(self.dataset) - 127.5) / 128.0
         self.label = np.array(self.label)
-        # print('Img:', self.dataset.shape)
         print('Label:', self.label.shape)
         print('Label_value:', self.label[345:350])
-        # self.x = torch.FloatTensor(self.dataset)
         self.y = torch.LongTensor(self.label)
 
     def __getitem__(self, index):
-        img = (torch.FloatTensor(np.transpose(np.array(cv2.imread(self.name[index]), dtype=float), [2, 0, 1])) - 127.5) / 255.0
         x = int(self.rng.rand() * (250-222))
         y = int(self.rng.rand() * (250-222))
         if self.st == 'train':
+            img = (torch.FloatTensor(np.transpose(np.array(cv2.imread(self.name[index]), dtype=float), [2, 0, 1])) - 127.5) / 128.0
             return img[:, x:x + 222, y:y + 222], self.y[index]
         elif self.st == 'test':
-            return img[:, x:x + 222, y:y + 222], self.y[index], self.name[index]
+            return self.x[index, :, x:x + 222, y:y + 222], self.y[index], self.name[index]
         else:
             exit(-1)
 
