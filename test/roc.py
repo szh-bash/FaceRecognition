@@ -5,7 +5,7 @@ import progressbar as pb
 
 
 pairs_txt_path = '/data/shenzhonghai/lfw/pairs.txt'
-feat_path = '/data/shenzhonghai/lfw/lfw-feat-af-3|20k-conv/'
+feat_path = '/data/shenzhonghai/lfw/lfw-feat-af-3|20k-fc3/'
 dist = []
 ground_truth = []
 widgets = ['Testing: ', pb.Percentage(),
@@ -78,7 +78,7 @@ print('Max test_acc: %.3f (threshold=%.5f)' % (test_acc.max(), thresholds[test_a
 # print((dist == ground_truth).sum()/test_total*100)
 
 # Roc
-index = np.argsort(dist)
+index = np.argsort(dist)[::-1]
 roc = 0
 count = 0
 true_ratio = []

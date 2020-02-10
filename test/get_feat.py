@@ -28,7 +28,7 @@ def save_feat(ft, name_list, lim, path):
 
 # load model
 # model_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_bs-128_lr-4|16k|19k_ep200.pt'
-model_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_af_128_3|20k_ep240.pt'
+model_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_af_128_3|20k_ep210.pt'
 device = torch.device('cuda:0')
 model = Vgg16('test', 'arcface').cuda()
 model.load_state_dict({k.replace('module.', ''): v for k, v in torch.load(model_path).items()})
@@ -36,8 +36,8 @@ model.eval()  # DropOut/BN
 print(model)
 
 # load data
-feat_path = '/data/shenzhonghai/lfw/lfw-feat-af-3|20k-conv/'
-batch_size = 16
+feat_path = '/data/shenzhonghai/lfw/lfw-feat-af-3|20k-fc3/'
+batch_size = 32
 data = DataReader('test', 'lfw')
 data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=False, pin_memory=True)
 
