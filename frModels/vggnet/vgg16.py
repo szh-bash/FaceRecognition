@@ -5,7 +5,7 @@ import torch.nn.functional as F
 class Vgg16(nn.Module):
     loss_type = ''
 
-    def __init__(self, st, loss):
+    def __init__(self, st, loss, data_name):
         super(Vgg16, self).__init__()
 
         # 3 * 224 * 224
@@ -36,7 +36,7 @@ class Vgg16(nn.Module):
 
         self.fc1 = nn.Linear(512 * 6 * 6, 4096)
         self.fc2 = nn.Linear(4096, 4096)
-        self.fc3 = nn.Linear(4096, 5749)
+        self.fc3 = nn.Linear(4096, 5749 if data_name == 'lfw' else 10575)
         # softmax 1 * 1 * 1000
 
         self.status = st
