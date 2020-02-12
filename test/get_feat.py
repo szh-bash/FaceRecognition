@@ -37,7 +37,7 @@ data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=False, pin
 # model_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_af_128_3|20k_ep210.pt'
 model_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_lfw_af-2_256_2_ep140.pt'
 device = torch.device('cuda:0')
-model = Vgg16('train', 'softmax', data.data_name).cuda()
+model = Vgg16('test', 'arcface', data.data_name).cuda()
 model.load_state_dict({k.replace('module.', ''): v for k, v in torch.load(model_path).items()})
 model.eval()  # DropOut/BN
 print(model)
