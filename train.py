@@ -34,18 +34,18 @@ def get_max_gradient(g):
 
 if __name__ == '__main__':
     # set config
-    save_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_wf_sm_128_2_ep'
-    data = DataReader('train', 'webface')
-    batch_size = 128
-    Total = 360
+    save_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_lfw_af-2_256_2_ep'
+    data = DataReader('train', 'lfw')
+    batch_size = 256
+    Total = 140
     learning_rate = 0.001
     grads = {}
 
     # Some Args setting
-    net = Vgg16('train', 'softmax', data.data_name)
+    net = Vgg16('train', 'arcface', data.data_name)
     device = torch.device("cuda:0")
     if torch.cuda.device_count() > 1:
-        devices_ids = [0, 1, 2, 3]
+        devices_ids = [0, 1, 2, 3, 4, 5]
         net = nn.DataParallel(net, device_ids=devices_ids)
         print("Let's use %d/%d GPUs!" % (len(devices_ids), torch.cuda.device_count()))
     net.to(device)
@@ -117,7 +117,7 @@ if __name__ == '__main__':
             # acc = (pred == train_y).sum()
             print('epoch: %d/%d, loss: %.5f, train_time: %.5f, data_time: %.5f' %
                   (epoch, Total, float(loss), train_time, data_time))
-        if epoch > 120 and epoch % 20 == 0:
+        if epoch % 10 == 0:
             torch.save(net.state_dict(), save_path+str(epoch)+'.pt')
             print('Model saved to %s' % (save_path+str(epoch)+'.pt'))
 

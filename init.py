@@ -4,12 +4,13 @@ import torch
 import numpy as np
 from torch.utils.data import Dataset
 import progressbar as pb
+from utils.DataHandler import Augment
 # lfw: 5749, 13233
 # webface: 10575, 494414
 
 lfwPath = '/dev/shm/lfw'
 webfacePath = '/dev/shm/CASIA-WebFace'
-
+aug = Augment()
 
 class DataReader(Dataset):
 
@@ -49,23 +50,26 @@ class DataReader(Dataset):
         print('Data Loaded!')
         if self.st == 'test':
             self.dataset = np.transpose(np.array(self.dataset, dtype=float), [0, 3, 1, 2])
-            print('Img:', self.dataset.shape)
             self.x = (torch.FloatTensor(self.dataset) - 127.5) / 128.0
         self.label = np.array(self.label)
+        print('Types:', self.person)
         print('Label:', self.label.shape)
         print('Label_value:', self.label[345:350])
         self.y = torch.LongTensor(self.label)
 
     def __getitem__(self, index):
-        x = int(self.rng.rand() * (250-222))
-        y = int(self.rng.rand() * (250-222))
         if self.st == 'train':
-            img = (torch.FloatTensor(np.transpose(np.array(cv2.imread(self.name[index]), dtype=float), [2, 0, 1])) - 127.5) / 128.0
-            return img[:, x:x + 222, y:y + 222], self.y[index]
+            img = torch.FloatTensor(np.transpose(np.array(cv2.imread(self.name[index]), dtype=float), [2, 0, 1]))
+            return aug.run(img, self.y[index])
         elif self.st == 'test':
+            x = (250-222) // 2
+            y = (250-222) // 2
             return self.x[index, :, x:x + 222, y:y + 222], self.y[index], self.name[index]
         else:
             exit(-1)
 
     def __len__(self):
         return self.len
+
+
+# data = DataReader('train', 'lfw')

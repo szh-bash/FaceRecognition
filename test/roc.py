@@ -5,7 +5,7 @@ import progressbar as pb
 
 
 pairs_txt_path = '/data/shenzhonghai/lfw/pairs.txt'
-feat_path = '/data/shenzhonghai/lfw/lfw-feat-af-3|20k-fc3/'
+feat_path = '/data/shenzhonghai/lfw/lfw-feat-fc3/'
 dist = []
 ground_truth = []
 widgets = ['Testing: ', pb.Percentage(),
@@ -39,7 +39,7 @@ def get_img_pairs_list():
     times, batches = id_pattern.findall(st)[0:2]
     times, batches = int(times), int(batches)
     # print(times, batches)
-    total = times * batches * 2
+    total = times * batches // 5
     pgb = pb.ProgressBar(widgets=widgets, maxval=total).start()
     for i in range(total):
         st = file.readline()

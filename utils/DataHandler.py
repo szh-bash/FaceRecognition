@@ -15,16 +15,18 @@ class Augment:
     def crop(self, img):
         x = int(self.rng.rand()*DW)
         y = int(self.rng.rand()*DH)
-        return img[:, :, x:x+W, y:y+H]
+        return img[:, x:x+W, y:y+H]
 
     def flip(self, img):
         if self.rng.rand() > 0.5:
-            return img[:, :, :, ::-1].copy()
+            # return img[:, :, ::-1]
+            torch.flip(img, (0,))
         return img
 
     def run(self, img, label):
         img = self.crop(img)
         img = self.flip(img)
+        img = (img - 127.5) / 128.0
         return img, label
 
 
