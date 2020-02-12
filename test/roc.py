@@ -5,7 +5,7 @@ import progressbar as pb
 
 
 pairs_txt_path = '/data/shenzhonghai/lfw/pairs.txt'
-feat_path = '/data/shenzhonghai/lfw/lfw-feat-fc3/'
+feat_path = '/data/shenzhonghai/lfw/lfw-af2-feat-fc2/'
 dist = []
 ground_truth = []
 widgets = ['Testing: ', pb.Percentage(),
