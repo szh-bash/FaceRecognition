@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 def smooth(seq):
-    m = 5
+    m = 10
     n = len(seq)
     res = []
     for i in range(n-m):
@@ -22,6 +22,8 @@ def smooth(seq):
 # log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_wf_sm_128_2.log'
 log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_lfw_af-1_256_2.log'
 log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_lfw_af-2_flip_256_2.log'
+log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_wf_af-1_256_2.log'
+log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_wf_af-1_256_lr2e3_2|40k.log'
 acc = []
 loss = []
 iters = 0
@@ -49,12 +51,12 @@ ax2 = ax1.twinx()
 ax1.plot(x, loss, label='loss', color='r')
 ax2.plot(x, acc, label='train_acc', color='b')
 ax1.set_xlim(0, iters)
-ax1.set_ylim(0.,24)
+ax1.set_ylim(0., 24)
 ax2.set_ylim(0., 100.)
 ax1.set_ylabel('loss')
 ax2.set_ylabel('train_acc')
 plt.xlabel('iterations')
-plt.title(log_path)
+plt.title(log_path.split('/')[-1])
 fig.legend(bbox_to_anchor=(1, 0.5), bbox_transform=ax1.transAxes)
 
 plt.show()

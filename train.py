@@ -34,11 +34,11 @@ def get_max_gradient(g):
 
 if __name__ == '__main__':
     # set config
-    save_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_lfw_af-2_256_2_ep'
-    data = DataReader('train', 'lfw')
+    save_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_wf_af-1_256_lr2e3_2|40k_ep'
+    data = DataReader('train', 'webface')
     batch_size = 256
-    Total = 140
-    learning_rate = 0.001
+    Total = 40
+    learning_rate = 0.002
     grads = {}
 
     # Some Args setting
@@ -69,7 +69,7 @@ if __name__ == '__main__':
 
     print("Training Started!")
     iterations = 0
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[200], gamma=0.1, last_epoch=-1)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[200, 40000], gamma=0.1, last_epoch=-1)
     for epoch in range(Total):
         data_time, train_time = 0, 0
         pred, train_x, train_y, loss = None, None, None, None
@@ -117,7 +117,7 @@ if __name__ == '__main__':
             # acc = (pred == train_y).sum()
             print('epoch: %d/%d, loss: %.5f, train_time: %.5f, data_time: %.5f' %
                   (epoch, Total, float(loss), train_time, data_time))
-        if epoch % 10 == 0:
+        if epoch % 5 == 0:
             torch.save(net.state_dict(), save_path+str(epoch)+'.pt')
             print('Model saved to %s' % (save_path+str(epoch)+'.pt'))
 
