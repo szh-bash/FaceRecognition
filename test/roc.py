@@ -71,7 +71,7 @@ ground_truth = np.array(ground_truth)
 
 # Figure out test_acc
 length = 10000
-thresholds_left, thresholds_right = 0.0, 1.0
+thresholds_left, thresholds_right = -1.0, 1.0
 thresholds = np.linspace(thresholds_left, thresholds_right, length)
 test_acc = get_acc(thresholds, test_total)
 print('Max test_acc: %.3f (threshold=%.5f)' % (test_acc.max(), thresholds[test_acc.argmax()]))
