@@ -106,7 +106,7 @@ ax2.set_ylim(0., 1.)
 ax1.set_ylabel('test_acc')
 ax2.set_ylabel('roc')
 plt.xlabel('thresholds')
-plt.title('test_acc/roc')
+plt.title(feat_path)
 fig.legend(bbox_to_anchor=(0.6, 1.), bbox_transform=ax1.transAxes)
 
 plt.show()
