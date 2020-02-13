@@ -5,7 +5,7 @@ import progressbar as pb
 
 
 pairs_txt_path = '/data/shenzhonghai/lfw/pairs.txt'
-feat_path = '/data/shenzhonghai/lfw/lfw-af2-feat-fc2/'
+feat_path = '/data/shenzhonghai/lfw/wf-af1-feat-fc2/'
 dist = []
 ground_truth = []
 widgets = ['Testing: ', pb.Percentage(),
@@ -106,7 +106,7 @@ ax2.set_ylim(0., 1.)
 ax1.set_ylabel('test_acc')
 ax2.set_ylabel('roc')
 plt.xlabel('thresholds')
-plt.title(feat_path)
+plt.title(feat_path.split('/')[-1])
 fig.legend(bbox_to_anchor=(0.6, 1.), bbox_transform=ax1.transAxes)
 
 plt.show()
