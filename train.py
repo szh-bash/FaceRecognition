@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-from frModels.vggnet.vgg16 import Vgg16
+from model.vggnet.vgg16 import Vgg16
 from loss import ArcMarginProduct as Arcface
 
 from init import DataReader
@@ -34,11 +34,11 @@ def get_max_gradient(g):
 
 if __name__ == '__main__':
     # set config
-    save_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_wf_af-1_256_lr2e3_2|40k_ep'
+    save_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_wf_af-1_256_lr1e3_2|60k_ep'
     data = DataReader('train', 'webface')
     batch_size = 256
-    Total = 40
-    learning_rate = 0.002
+    Total = 35
+    learning_rate = 0.001
     grads = {}
 
     # Some Args setting
@@ -69,7 +69,7 @@ if __name__ == '__main__':
 
     print("Training Started!")
     iterations = 0
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[200, 40000], gamma=0.1, last_epoch=-1)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[200, 60000], gamma=0.1, last_epoch=-1)
     for epoch in range(Total):
         data_time, train_time = 0, 0
         pred, train_x, train_y, loss = None, None, None, None

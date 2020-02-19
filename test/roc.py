@@ -5,7 +5,7 @@ import progressbar as pb
 
 
 pairs_txt_path = '/data/shenzhonghai/lfw/pairs.txt'
-feat_path = '/data/shenzhonghai/lfw/wf-af1-feat-fc2/'
+feat_path = '/data/shenzhonghai/lfw/wf-af1-lr2e3-feat-fc2/'
 dist = []
 ground_truth = []
 widgets = ['Testing: ', pb.Percentage(),
@@ -39,7 +39,7 @@ def get_img_pairs_list():
     times, batches = id_pattern.findall(st)[0:2]
     times, batches = int(times), int(batches)
     # print(times, batches)
-    total = times * batches // 5
+    total = times * batches * 2
     pgb = pb.ProgressBar(widgets=widgets, maxval=total).start()
     for i in range(total):
         st = file.readline()
@@ -94,6 +94,9 @@ for idx in index:
 true_ratio[-1] = 1.0
 # print(true_ratio)
 print('ROC: %.5f' % roc)
+print('@FAR = 0.00100: TAR = %.5f' % true_ratio[2])
+print('@FAR = 0.0100: TAR = %.5f' % true_ratio[29])
+print('@FAR = 0.0200: TAR = %.5f' % true_ratio[58])
 
 # plotting test_acc
 fig, ax1 = plt.subplots()
@@ -106,7 +109,7 @@ ax2.set_ylim(0., 1.)
 ax1.set_ylabel('test_acc')
 ax2.set_ylabel('roc')
 plt.xlabel('thresholds')
-plt.title(feat_path.split('/')[-1])
+plt.title(feat_path.split('/')[-2])
 fig.legend(bbox_to_anchor=(0.6, 1.), bbox_transform=ax1.transAxes)
 
 plt.show()

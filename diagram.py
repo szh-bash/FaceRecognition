@@ -24,6 +24,7 @@ log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_lfw_af-1_256_
 log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_lfw_af-2_flip_256_2.log'
 log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_wf_af-1_256_2.log'
 log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_wf_af-1_256_lr2e3_2|40k.log'
+log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_wf_af-1_256_lr1e3_2|60k.log'
 acc = []
 loss = []
 iters = 0

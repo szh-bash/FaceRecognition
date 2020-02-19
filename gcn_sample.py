@@ -9,7 +9,7 @@ def relu(x):
 
 
 # 有向图的邻接矩阵表征
-A = np.matrix([
+A = np.mat([
     [0, 1, 0, 0],
     [0, 0, 1, 1],
     [0, 1, 0, 0],
@@ -24,7 +24,7 @@ print("A = \n", A)
  [1. 0. 1. 0.]]
 '''
 # 两个整数特征
-X = np.matrix([
+X = np.mat([
     [i, -i]
     for i in range(A.shape[0])],
     dtype=float
@@ -51,7 +51,7 @@ print("A * X = \n", A * X)
 # 1、节点的聚合表征不包含它自己的特征！
 # 2、度大的节点在其特征表征中将具有较大的值，度小的节点将具有较小的值。
 #    这可能会导致梯度消失或梯度爆炸
-I = np.matrix(np.eye(A.shape[0]))
+I = np.mat(np.eye(A.shape[0]))
 print("I = \n", I)
 '''
 [[1. 0. 0. 0.]
@@ -62,20 +62,8 @@ print("I = \n", I)
 # 每个节点都是自己的邻居
 A_hat = A + I
 print("A_hat = \n", A_hat)
-'''
-[[1. 1. 0. 0.]
- [0. 1. 1. 1.]
- [0. 1. 1. 0.]
- [1. 0. 1. 1.]]
-'''
 # 由于每个节点都是自己的邻居，每个节点在对相邻节点的特征求和过程中也会囊括自己的特征！
 print("A_hat * X = \n", A_hat * X)
-'''
-[[ 1. -1.]
- [ 6. -6.]
- [ 3. -3.]
- [ 5. -5.]]
-'''
 # 为了防止某些度很大的节点的特征值很大，对特征表征进行归一化处理
 # 通过将邻接矩阵 A 与度矩阵 D 的逆相乘，对其进行变换，从而通过节点的度对特征表征进行归一化
 # f(X, A) = D⁻¹AX
@@ -83,8 +71,7 @@ print("A_hat * X = \n", A_hat * X)
 # 首先计算出节点的度矩阵，这里改成了出度
 print("A = \n", A)
 D = np.array(np.sum(A, axis=1))[:, 0]
-#D = np.array(np.sum(A, axis=0))[0]
-D = np.matrix(np.diag(D))
+D = np.mat(np.diag(D))
 print("D = \n", D)
 '''
  [[1. 0. 0. 0.]
@@ -114,7 +101,7 @@ print("D⁻¹ * A * X = \n", D**-1 * A * X)
 
 # 接下来得到D_hat, 是 A_hat = A + I 对应的度矩阵
 D_hat = np.array(np.sum(A_hat, axis=1))[:, 0]
-D_hat = np.matrix(np.diag(D_hat))
+D_hat = np.mat(np.diag(D_hat))
 print("D_hat = \n", D_hat)
 '''
  [[2. 0. 0. 0.]
@@ -132,58 +119,17 @@ print("D_hat = \n", D_hat)
 # 添加权重
 # 我们想要减小输出特征表征的维度，我们可以减小权重矩阵 W 的规模
 # 但是这里故意增大了
-W = np.matrix([
+W = np.mat([
     [1, -1, 2],
     [-1, 1, -2]
 ])
 print("W = \n", W)
-'''
-W =
- [[ 1 -1  2]
- [-1  1 -2]]
-'''
-
 print("A_hat = \n", A_hat)
-'''
- [[1. 1. 0. 0.]
- [0. 1. 1. 1.]
- [0. 1. 1. 0.]
- [1. 0. 1. 1.]]
-'''
-
 print("D_hat**-1 * A_hat = \n", D_hat**-1 * A_hat)
-'''
- [[0.5        0.5        0.         0.        ]
- [0.         0.33333333 0.33333333 0.33333333]
- [0.         0.5        0.5        0.        ]
- [0.33333333 0.         0.33333333 0.33333333]]
-'''
-
 print("D_hat**-1 * A_hat * X = \n", D_hat**-1 * A_hat * X)
-'''
- [[ 0.5        -0.5       ]
- [ 2.         -2.        ]
- [ 1.5        -1.5       ]
- [ 1.66666667 -1.66666667]]
-'''
-
 print("D_hat**-1 * A_hat * X * W = \n", D_hat**-1 * A_hat * X * W)
-'''
- [[ 1.         -1.          2.        ]
- [ 4.         -4.          8.        ]
- [ 3.         -3.          6.        ]
- [ 3.33333333 -3.33333333  6.66666667]]
-'''
-
 # 添加激活函数
 print("relu(D_hat**-1 * A_hat * X * W) = \n", relu(D_hat**-1 * A_hat * X * W))
-'''
- [[1.         0.         2.        ]
- [4.         0.         8.        ]
- [3.         0.         6.        ]
- [3.33333333 0.         6.66666667]]
-
-'''
 
 
 # ============ 我们将图卷积网络应用到一个真实的图上 ============
@@ -223,27 +169,13 @@ I = np.eye(zkc.number_of_nodes())  # 34 x 34
 A_hat = A + I
 
 D_hat = np.array(np.sum(A_hat, axis=0))[0]
-D_hat = np.matrix(np.diag(D_hat))
+print(np.diag(D_hat))
+D_hat = np.mat(np.diag(D_hat))
+print(D_hat)
 
 # 接下来，我们将随机初始化权重。
-W_1 = np.random.normal(
-    loc=0, scale=1, size=(zkc.number_of_nodes(), 4))
-'''
-W_1 =
- [[ 6.42144245e-01 -2.83590736e-01 -8.75764693e-01  4.17843912e-01]
- [-6.60605015e-01 -4.72658496e-01  1.10796818e+00 -1.64596954e+00]
- ...
- [-4.34570333e-01 -1.17468794e+00  3.94254896e-01  2.24888554e-01]]
-'''
-W_2 = np.random.normal(
-    loc = 0, size=(W_1.shape[1], 2))
-'''
-W_2 =
- [[-0.41063717  0.61026865]
- [-0.20577127 -1.79543329]
- [ 1.1148323   0.34126572]]
-'''
-
+W_1 = np.random.normal(loc=0, scale=1, size=(zkc.number_of_nodes(), 4))
+W_2 = np.random.normal(loc=0, size=(W_1.shape[1], 2))
 print("W_1 = \n", W_1)
 print("W_2 = \n", W_2)
 
@@ -257,18 +189,8 @@ def gcn_layer(A_hat, D_hat, X, W):
 
 
 H_1 = gcn_layer(A_hat, D_hat, I, W_1)
-
 H_2 = gcn_layer(A_hat, D_hat, H_1, W_2)
-
 output = H_2
-'''
-output =
- [[0.30333074 0.38689069]
- [0.34164209 0.3803171 ]
- ...
- [0.29526046 0.35807214]]
-'''
-
 print("output = \n", output)
 print(output.shape[0], output.shape[1])
 
@@ -288,14 +210,15 @@ print("len = ", len(feature_representations))
 # 绘画
 import matplotlib.pyplot as plt
 
+
 # 原本的关系图
 def plot_graph(G, weight_name=None):
     '''
-    G: a networkx G
-    weight_name: name of the attribute for plotting edge weights (if G is weighted)
+        G: a networkx G
+        weight_name: name of the attribute for plotting edge weights (if G is weighted)
     '''
-    #% matplotlib
-    #notebook
+    # % matplotlib
+    # notebook
     import matplotlib.pyplot as plt
 
     plt.figure()
@@ -349,3 +272,5 @@ for i in range(node_num):
 
 nx.draw_networkx_edges(H, feature_representations, alpha=0.3)
 plt.show()
+
+print('fydnb')
