@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader
 from model.vggnet.vgg16 import Vgg16
 from loss import ArcMarginProduct as Arcface
 
+from config import learning_rate, batch_size, Total, modelSavePath
 from init import DataReader
 
 
@@ -34,18 +35,14 @@ def get_max_gradient(g):
 
 if __name__ == '__main__':
     # set config
-    save_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_wf_af-1_256_lr1e3_2|60k_ep'
     data = DataReader('train', 'webface')
-    batch_size = 256
-    Total = 35
-    learning_rate = 0.001
     grads = {}
 
     # Some Args setting
     net = Vgg16('train', 'arcface', data.data_name)
     device = torch.device("cuda:0")
     if torch.cuda.device_count() > 1:
-        devices_ids = [0, 1, 2, 3, 4, 5]
+        devices_ids = [0, 1, 2, 3, 4]
         net = nn.DataParallel(net, device_ids=devices_ids)
         print("Let's use %d/%d GPUs!" % (len(devices_ids), torch.cuda.device_count()))
     net.to(device)
@@ -57,8 +54,8 @@ if __name__ == '__main__':
                            lr=learning_rate)
     print(net.parameters())
     print(arcface.parameters())
-    torch.save(net.state_dict(), save_path+str(0)+'.pt')
-    print('Model saved to %s' % (save_path + str(0) + '.pt'))
+    torch.save(net.state_dict(), modelSavePath+str(0)+'.pt')
+    print('Model saved to %s' % (modelSavePath + str(0) + '.pt'))
 
     num_params = 0
     for param in net.parameters():
@@ -117,8 +114,8 @@ if __name__ == '__main__':
             # acc = (pred == train_y).sum()
             print('epoch: %d/%d, loss: %.5f, train_time: %.5f, data_time: %.5f' %
                   (epoch, Total, float(loss), train_time, data_time))
-        if epoch % 5 == 0:
-            torch.save(net.state_dict(), save_path+str(epoch)+'.pt')
-            print('Model saved to %s' % (save_path+str(epoch)+'.pt'))
+        if epoch % 5 == 0 or epoch > 9:
+            torch.save(net.state_dict(), modelSavePath+str(epoch)+'.pt')
+            print('Model saved to %s' % (modelSavePath+str(epoch)+'.pt'))
 
     print('fydnb!')

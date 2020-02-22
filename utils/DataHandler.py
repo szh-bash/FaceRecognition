@@ -26,7 +26,8 @@ class Augment:
     def run(self, img, label):
         img = self.crop(img)
         img = self.flip(img)
-        img = (img - 127.5) / 128.0
+        # img = (img - 127.5) / 128.0
+        img = img / 255.
         return img, label
 
 

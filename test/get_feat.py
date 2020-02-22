@@ -10,6 +10,8 @@ sys.path.append("..")
 from init import DataReader
 from model.vggnet.vgg16 import Vgg16
 
+from config import featPath, modelPath
+
 
 def save_feat(ft, name_list, lim, path):
     ft = ft.cpu()
@@ -29,7 +31,6 @@ def save_feat(ft, name_list, lim, path):
 
 
 # load data
-feat_path = '/data/shenzhonghai/lfw/lfw-af1-lr1e3-feat-conv-ep35/'
 batch_size = 1
 data = DataReader('test', 'lfw')
 data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=False, pin_memory=True)
@@ -38,10 +39,10 @@ data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=False, pin
 # model_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_bs-128_lr-4|16k|19k_ep200.pt'
 # model_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_af_128_3|20k_ep210.pt'
 # model_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_lfw_af-1_256_2_ep100.pt'
-model_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_wf_af-1_256_lr1e3_2|60k_ep35.pt'
+# model_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_wf_af-1_256_lr1e3_2|60k_ep35.pt'
 device = torch.device('cuda:0')
-model = Vgg16('test', 'arcface', 'webface').cuda()
-model.load_state_dict({k.replace('module.', ''): v for k, v in torch.load(model_path).items()})
+model = Vgg16('fc2', 'arcface', 'webface').cuda()
+model.load_state_dict({k.replace('module.', ''): v for k, v in torch.load(modelPath).items()})
 model.eval()  # DropOut/BN
 print(model)
 
@@ -57,7 +58,7 @@ widgets = [' ', pb.Percentage(),
 pgb = pb.ProgressBar(widgets=widgets, maxval=Total).start()
 for i, (inputs, labels, names) in enumerate(data_loader):
     feat = model(inputs.to(device))
-    save_feat(feat, names, labels.size(0), feat_path)
+    save_feat(feat, names, labels.size(0), featPath)
     pgb.update(i)
 pgb.finish()
-print('Feature Map saved to \'%s\' successfully!' % feat_path[:-1])
+print('Feature Map saved to \'%s\' successfully!' % featPath[:-1])

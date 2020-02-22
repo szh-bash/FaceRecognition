@@ -5,19 +5,21 @@ import numpy as np
 from torch.utils.data import Dataset
 import progressbar as pb
 from utils.DataHandler import Augment
+from config import lfwPath, webPath, featPath
 # lfw: 5749, 13233
 # webface: 10575, 494414
 
-lfwPath = '/dev/shm/lfw'
-webfacePath = '/dev/shm/CASIA-WebFace'
+
 aug = Augment()
+
 
 class DataReader(Dataset):
 
-    def __init__(self, st, data_name):
+    def __init__(self, st, data_name, filepath=featPath):
         self.st = st
         self.data_name = data_name
-        filepath = lfwPath if data_name == 'lfw' else webfacePath
+        if st != 'feat':
+            filepath = lfwPath if data_name == 'lfw' else webPath
         path_dir = os.listdir(filepath)
         print('data path:', filepath)
         self.dataset = []
@@ -25,32 +27,50 @@ class DataReader(Dataset):
         self.name = []
         self.person = 0
         self.rng = np.random
+        nums = []
+        self.idx = []
+        self.feat = []
+        self.len = 0
         widgets = ['Loading: ', pb.Percentage(),
                    ' ', pb.Bar(marker='>', left='[', right=']', fill='='),
                    ' ', pb.Timer(),
                    ' ', pb.ETA(),
                    ' ', pb.FileTransferSpeed()]
         pgb = pb.ProgressBar(widgets=widgets, maxval=13233 if data_name == 'lfw' else 494414).start()
-        self.len = 0
         for allDir in path_dir:
             child = os.path.join('%s/%s' % (filepath, allDir))
             child_dir = os.listdir(child)
+            self.idx.append(self.len)
+            tmp = 0
             for allSon in child_dir:
                 son = os.path.join('%s/%s' % (child, allSon))
                 if self.st == 'test':
                     self.dataset.append(cv2.imread(son))
+                elif self.st == 'feat':
+                    cup = []
+                    fp = open(son)
+                    for st in fp:
+                        cup.append(float(st))
+                    self.feat.append(cup)
                 self.label.append(self.person)
                 self.name.append(son)
                 pgb.update(self.len)
                 self.len += 1
+                tmp += 1
+            nums.append(tmp)
             self.person += 1
             # if person == 1000:
             #     break
         pgb.finish()
         print('Data Loaded!')
+        print(np.sort(np.array(nums))[-20:])
         if self.st == 'test':
             self.dataset = np.transpose(np.array(self.dataset, dtype=float), [0, 3, 1, 2])
-            self.x = (torch.FloatTensor(self.dataset) - 127.5) / 128.0
+            print(self.dataset.shape)
+            # self.x = (torch.FloatTensor(self.dataset) - 127.5) / 128.0
+            self.x = torch.FloatTensor(self.dataset) / 255.
+        elif self.st == 'feat':
+            self.feat = np.array(self.feat, dtype=float)
         self.label = np.array(self.label)
         print('Types:', self.person)
         print('Label:', self.label.shape)
@@ -72,4 +92,4 @@ class DataReader(Dataset):
         return self.len
 
 
-# data = DataReader('train', 'lfw')
+# data = DataReader('test', 'lfw')

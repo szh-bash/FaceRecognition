@@ -85,7 +85,7 @@ class Vgg16(nn.Module):
 
         # 展平
         out = out.view(in_size, -1)
-        if self.status == 'test':
+        if self.status == 'conv':
             return out
 
         out = self.fc1(out)

@@ -1,12 +1,7 @@
-"""
-@Date: 2019/1/14
-
-@Author: dreamhome
-
-@Summary: train  semi-supervised setting
-"""
 import torch
 import torch.nn.functional as F
+
+import numpy as np
 
 import networkx as nx
 import matplotlib.animation as animation
@@ -15,17 +10,23 @@ import matplotlib.pyplot as plt
 from model.gcn.gcn import GCN
 from utils.Graph import build_karate_club_graph
 
+# from config import
+from init import DataReader
+
 import warnings
 warnings.filterwarnings('ignore')
 
-
-net = GCN(34, 5, 2)
+data = DataReader('feat', 'lfw')
+data.len = data.person = 34
+net = GCN(data.len, 40, data.person)
 print(net)
 G = build_karate_club_graph()
 
-inputs = torch.eye(34)
-labeled_nodes = torch.tensor([0, 33])  # only the instructor and the president nodes are labeled
-labels = torch.tensor([0, 1])
+inputs = data.feat[:34]
+print(inputs.shape)
+labeled_nodes = torch.tensor(data.idx)  # only the instructor and the president nodes are labeled
+labels = torch.tensor(np.linspace(0, data.person, data.person, dtype=int))
+print(labels[:5])
 
 optimizer = torch.optim.Adam(net.parameters(), lr=0.01)
 all_logits = []
@@ -45,12 +46,13 @@ for epoch in range(40):
     print('Epoch %d | Loss: %.4f' % (epoch, loss.item()))
 
 
+exit(0)
 def draw(i):
     cls1color = '#00FFFF'
     cls2color = '#FF00FF'
     pos = {}
     colors = []
-    for v in range(34):
+    for v in range(data.len):
         pos[v] = all_logits[i][v].numpy()
         cls = pos[v].argmax()
         colors.append(cls1color if cls else cls2color)

@@ -1,11 +1,13 @@
 import re
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import progressbar as pb
 
+sys.path.append("..")
+from config import featPath, pairsTxtPath
 
-pairs_txt_path = '/data/shenzhonghai/lfw/pairs.txt'
-feat_path = '/data/shenzhonghai/lfw/wf-af1-lr2e3-feat-fc2/'
+
 dist = []
 ground_truth = []
 widgets = ['Testing: ', pb.Percentage(),
@@ -32,7 +34,7 @@ def get_distance(path0, path1):
 
 
 def get_img_pairs_list():
-    file = open(pairs_txt_path)
+    file = open(pairsTxtPath)
     name_pattern = re.compile(r'[a-z|_|\-]+', re.I)
     id_pattern = re.compile(r'[0-9]+')
     st = file.readline()
@@ -46,7 +48,7 @@ def get_img_pairs_list():
         flag = (i//batches) & 1
         names = name_pattern.findall(st)
         ids = id_pattern.findall(st)
-        dist.append(get_distance(feat_path+names[0]+'/'+ids[0], feat_path+names[flag]+'/'+ids[1]))
+        dist.append(get_distance(featPath+names[0]+'/'+ids[0], featPath+names[flag]+'/'+ids[1]))
         ground_truth.append(flag ^ 1)
         pgb.update(i)
     pgb.finish()
@@ -93,10 +95,12 @@ for idx in index:
         true_ratio.append(count / test_total * 2)
 true_ratio[-1] = 1.0
 # print(true_ratio)
-print('ROC: %.5f' % roc)
+# print('ROC: %.5f' % roc)
+eer = np.abs(1 - np.array(true_ratio) - np.linspace(0, 1.0, (test_total/2)))
+print('EER: %.5f' % true_ratio[np.argmin(eer)])
 print('@FAR = 0.00100: TAR = %.5f' % true_ratio[2])
-print('@FAR = 0.0100: TAR = %.5f' % true_ratio[29])
-print('@FAR = 0.0200: TAR = %.5f' % true_ratio[58])
+print('@FAR = 0.01000: TAR = %.5f' % true_ratio[29])
+print('@FAR = 0.02000: TAR = %.5f' % true_ratio[58])
 
 # plotting test_acc
 fig, ax1 = plt.subplots()
@@ -109,7 +113,7 @@ ax2.set_ylim(0., 1.)
 ax1.set_ylabel('test_acc')
 ax2.set_ylabel('roc')
 plt.xlabel('thresholds')
-plt.title(feat_path.split('/')[-2])
+plt.title(featPath.split('/')[-2])
 fig.legend(bbox_to_anchor=(0.6, 1.), bbox_transform=ax1.transAxes)
 
 plt.show()
