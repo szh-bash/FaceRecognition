@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 from model.vggnet.vgg16 import Vgg16
 from loss import ArcMarginProduct as Arcface
 
-from config import learning_rate, batch_size, Total, modelSavePath
+from config import learning_rate, batch_size, weight_decay, Total, modelSavePath
 from init import DataReader
 
 
@@ -35,11 +35,11 @@ def get_max_gradient(g):
 
 if __name__ == '__main__':
     # set config
-    data = DataReader('train', 'webface')
+    data = DataReader('train', 'webFace')
     grads = {}
 
     # Some Args setting
-    net = Vgg16('train', 'arcface', data.data_name)
+    net = Vgg16('train', 'arcFace', data.data_name)
     device = torch.device("cuda:0")
     if torch.cuda.device_count() > 1:
         devices_ids = [0, 1, 2, 3, 4]
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     criterion = nn.CrossEntropyLoss().to(device)
     optimizer = optim.Adam([{'params': net.parameters()},
                             {'params': arcface.parameters()}],
-                           lr=learning_rate)
+                           lr=learning_rate, weight_decay=weight_decay)
     print(net.parameters())
     print(arcface.parameters())
     torch.save(net.state_dict(), modelSavePath+str(0)+'.pt')
@@ -66,7 +66,7 @@ if __name__ == '__main__':
 
     print("Training Started!")
     iterations = 0
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[200, 60000], gamma=0.1, last_epoch=-1)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[200, 90000], gamma=0.1, last_epoch=-1)
     for epoch in range(Total):
         data_time, train_time = 0, 0
         pred, train_x, train_y, loss = None, None, None, None
@@ -81,7 +81,7 @@ if __name__ == '__main__':
             # learning_rate = adjust_lr(optimizer, epoch, learning_rate)
             # print(optimizer.state_dict()['param_groups'])
             feat = net(train_x)
-            if Vgg16.loss_type == 'arcface':
+            if Vgg16.loss_type == 'arcFace':
                 feat = arcface(feat, train_y)
             feat.register_hook(save_grad('feat_grad'))
             loss = criterion(feat, train_y)
