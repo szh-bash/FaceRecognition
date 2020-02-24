@@ -5,7 +5,7 @@ import numpy as np
 from torch.utils.data import Dataset
 import progressbar as pb
 from utils.DataHandler import Augment
-from config import lfwPath, webPath, featPath
+from config import lfwPath, lfwDfPath, webPath, featPath
 # lfw: 5749, 13233
 # webface: 10575, 494414
 
@@ -19,7 +19,12 @@ class DataReader(Dataset):
         self.st = st
         self.data_name = data_name
         if st != 'feat':
-            filepath = lfwPath if data_name == 'lfw' else webPath
+            if data_name == 'lfw':
+                filepath = lfwPath
+            elif data_name == 'lfwDf':
+                filepath = lfwDfPath
+            elif data_name == 'webFace':
+                filepath = webPath
         path_dir = os.listdir(filepath)
         print('data path:', filepath)
         self.dataset = []
@@ -36,7 +41,7 @@ class DataReader(Dataset):
                    ' ', pb.Timer(),
                    ' ', pb.ETA(),
                    ' ', pb.FileTransferSpeed()]
-        pgb = pb.ProgressBar(widgets=widgets, maxval=13233 if data_name == 'lfw' else 494414).start()
+        pgb = pb.ProgressBar(widgets=widgets, maxval=494414 if data_name == 'webFace' else 13233).start()
         for allDir in path_dir:
             child = os.path.join('%s/%s' % (filepath, allDir))
             child_dir = os.listdir(child)
@@ -67,8 +72,8 @@ class DataReader(Dataset):
         if self.st == 'test':
             self.dataset = np.transpose(np.array(self.dataset, dtype=float), [0, 3, 1, 2])
             print(self.dataset.shape)
-            # self.x = (torch.FloatTensor(self.dataset) - 127.5) / 128.0
-            self.x = torch.FloatTensor(self.dataset) / 255.
+            self.x = (torch.FloatTensor(self.dataset) - 127.5) / 128.0
+            # self.x = torch.FloatTensor(self.dataset) / 255.
         elif self.st == 'feat':
             self.feat = np.array(self.feat, dtype=float)
         self.label = np.array(self.label)

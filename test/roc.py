@@ -7,7 +7,7 @@ import progressbar as pb
 sys.path.append("..")
 from config import featPath, pairsTxtPath
 
-
+print(featPath)
 dist = []
 ground_truth = []
 widgets = ['Testing: ', pb.Percentage(),
@@ -95,9 +95,9 @@ for idx in index:
         true_ratio.append(count / test_total * 2)
 true_ratio[-1] = 1.0
 # print(true_ratio)
-# print('ROC: %.5f' % roc)
 eer = np.abs(1 - np.array(true_ratio) - np.linspace(0, 1.0, (test_total/2)))
 print('EER: %.5f' % true_ratio[np.argmin(eer)])
+print('AUC: %.5f' % roc)
 print('@FAR = 0.00100: TAR = %.5f' % true_ratio[2])
 print('@FAR = 0.01000: TAR = %.5f' % true_ratio[29])
 print('@FAR = 0.02000: TAR = %.5f' % true_ratio[58])

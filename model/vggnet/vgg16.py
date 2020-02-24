@@ -91,7 +91,7 @@ class Vgg16(nn.Module):
         out = self.fc1(out)
         out = F.relu(out)
         out = self.fc2(out)
-        if Vgg16.loss_type == 'arcface':
+        if Vgg16.loss_type == 'arcFace':
             return out
         out = F.relu(out)
         out = self.fc3(out)
