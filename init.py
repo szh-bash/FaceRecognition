@@ -5,7 +5,8 @@ import numpy as np
 from torch.utils.data import Dataset
 import progressbar as pb
 from utils.DataHandler import Augment
-from config import lfwPath, lfwDfPath, webPath, featPath
+from config import lfwPath, lfwDfPath, webPath, featPath, mtWebPath
+# import utils.mtcnn_simple as mts
 # lfw: 5749, 13233
 # webface: 10575, 494414
 
@@ -25,6 +26,8 @@ class DataReader(Dataset):
                 filepath = lfwDfPath
             elif data_name == 'webFace':
                 filepath = webPath
+            elif data_name == 'mtWebFace':
+                filepath = mtWebPath
         path_dir = os.listdir(filepath)
         print('data path:', filepath)
         self.dataset = []
@@ -36,12 +39,14 @@ class DataReader(Dataset):
         self.idx = []
         self.feat = []
         self.len = 0
+        fail = 0
         widgets = ['Loading: ', pb.Percentage(),
                    ' ', pb.Bar(marker='>', left='[', right=']', fill='='),
                    ' ', pb.Timer(),
                    ' ', pb.ETA(),
                    ' ', pb.FileTransferSpeed()]
-        pgb = pb.ProgressBar(widgets=widgets, maxval=494414 if data_name == 'webFace' else 13233).start()
+        pgb = pb.ProgressBar(widgets=widgets, maxval=494414 if data_name == 'webFace' or data_name == 'mtWebFace'
+        else 13233).start()
         for allDir in path_dir:
             child = os.path.join('%s/%s' % (filepath, allDir))
             child_dir = os.listdir(child)
@@ -57,6 +62,14 @@ class DataReader(Dataset):
                     for st in fp:
                         cup.append(float(st))
                     self.feat.append(cup)
+                # elif self.st == 'mtcnn':
+                #     if not(os.path.exists(mtWebPath+'/'+allDir)):
+                #         os.mkdir(mtWebPath+'/'+allDir)
+                #     dst = os.path.join('%s/%s/%s' % (mtWebPath, allDir, allSon))
+                #     if mts.run(son, dst) < 0:
+                #         if mts.run(dst, dst) < 0:
+                #             fail += 1
+
                 self.label.append(self.person)
                 self.name.append(son)
                 pgb.update(self.len)
@@ -81,6 +94,8 @@ class DataReader(Dataset):
         print('Label:', self.label.shape)
         print('Label_value:', self.label[345:350])
         self.y = torch.LongTensor(self.label)
+        if self.st == 'mtcnn':
+            print(fail)
 
     def __getitem__(self, index):
         if self.st == 'train':
@@ -97,4 +112,5 @@ class DataReader(Dataset):
         return self.len
 
 
-# data = DataReader('test', 'lfw')
+# if __name__ == '__main__':
+    # data = DataReader('mtcnn', 'webFace')

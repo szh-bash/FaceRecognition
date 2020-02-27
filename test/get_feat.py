@@ -10,7 +10,7 @@ sys.path.append("..")
 from init import DataReader
 from model.vggnet.vgg16 import Vgg16
 
-from config import featPath, modelPath
+from config import featPath, modelPath, dp
 
 
 def save_feat(ft, name_list, lim, path):
@@ -41,7 +41,7 @@ data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=False, pin
 # model_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_lfw_af-1_256_2_ep100.pt'
 # model_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_wf_af-1_256_lr1e3_2|60k_ep35.pt'
 device = torch.device('cuda:0')
-model = Vgg16('fc2', 'arcFace', 'webFace').cuda()
+model = Vgg16('arcFace', data.person, 'fc2').cuda()
 model.load_state_dict({k.replace('module.', ''): v for k, v in torch.load(modelPath).items()})
 model.eval()  # DropOut/BN
 print(model)

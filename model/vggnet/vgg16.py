@@ -1,11 +1,12 @@
 import torch.nn as nn
 import torch.nn.functional as F
+from config import dp
 
 
 class Vgg16(nn.Module):
     loss_type = ''
 
-    def __init__(self, st, loss, data_name):
+    def __init__(self, loss, cls, st=None, p=dp):
         super(Vgg16, self).__init__()
 
         # 3 * 224 * 224
@@ -35,9 +36,12 @@ class Vgg16(nn.Module):
         # view
 
         self.fc1 = nn.Linear(512 * 6 * 6, 4096)
+        self.drop_out1 = nn.Dropout(p=p)
         self.fc2 = nn.Linear(4096, 4096)
-        self.fc3 = nn.Linear(4096, 5749 if data_name == 'lfw' else 10575)
+        self.drop_out2 = nn.Dropout(p=p)
+        self.fc3 = nn.Linear(4096, cls)
         # softmax 1 * 1 * 1000
+
 
         self.status = st
         Vgg16.loss_type = loss
@@ -90,10 +94,14 @@ class Vgg16(nn.Module):
 
         out = self.fc1(out)
         out = F.relu(out)
+        out = self.drop_out1(out)
         out = self.fc2(out)
+        # if self.status == 'fc2':
+        #     return out
+        out = F.relu(out)
+        out = self.drop_out2(out)
         if Vgg16.loss_type == 'arcFace':
             return out
-        out = F.relu(out)
         out = self.fc3(out)
 
         # out = F.log_softmax(out, dim=1)

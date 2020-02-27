@@ -35,14 +35,14 @@ def get_max_gradient(g):
 
 if __name__ == '__main__':
     # set config
-    data = DataReader('train', 'webFace')
+    data = DataReader('train', 'mtWebFace')
     grads = {}
 
     # Some Args setting
-    net = Vgg16('train', 'arcFace', data.data_name)
+    net = Vgg16('arcFace', data.person)
     device = torch.device("cuda:0")
     if torch.cuda.device_count() > 1:
-        devices_ids = [0, 1, 2, 3, 4]
+        devices_ids = [0, 1, 2, 3, 4, 5]
         net = nn.DataParallel(net, device_ids=devices_ids)
         print("Let's use %d/%d GPUs!" % (len(devices_ids), torch.cuda.device_count()))
     net.to(device)
@@ -66,7 +66,7 @@ if __name__ == '__main__':
 
     print("Training Started!")
     iterations = 0
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[200, 90000], gamma=0.1, last_epoch=-1)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[200, 60000], gamma=0.1, last_epoch=-1)
     for epoch in range(Total):
         data_time, train_time = 0, 0
         pred, train_x, train_y, loss = None, None, None, None
