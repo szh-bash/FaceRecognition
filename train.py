@@ -55,8 +55,11 @@ if __name__ == '__main__':
                            lr=learning_rate, weight_decay=weight_decay)
     print(net.parameters())
     print(arcFace.parameters())
-    torch.save(net.state_dict(), modelSavePath+str(0)+'.pt')
-    print('Model saved to %s' % (modelSavePath + str(0) + '.pt'))
+    torch.save({'net': net.state_dict(),
+                'epoch': 0,
+                'iter': 0
+                }, modelSavePath+str(0)+'.tar')
+    print('Model saved to %s' % (modelSavePath + str(0) + '.tar'))
 
     num_params = 0
     for param in net.parameters():
@@ -67,7 +70,7 @@ if __name__ == '__main__':
 
     print("Training Started!")
     iterations = 0
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[300, 100000], gamma=0.1, last_epoch=-1)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[200, 100000], gamma=0.1, last_epoch=-1)
     for epoch in range(Total):
         data_time, train_time = 0, 0
         pred, train_x, train_y, loss = None, None, None, None
@@ -121,9 +124,10 @@ if __name__ == '__main__':
                      'arc': arcFace.state_dict(),
                      'optimizer': optimizer.state_dict(),
                      'epoch': epoch,
+                     'iter': iterations,
                      'loss': loss_bc,
                      'acc': acc_bc}
-            torch.save(state, modelSavePath+str(epoch)+'.pt')
-            print('Model saved to %s' % (modelSavePath+str(epoch)+'.pt'))
+            torch.save(state, modelSavePath+str(epoch)+'.tar')
+            print('Model saved to %s' % (modelSavePath+str(epoch)+'.tar'))
 
     print('fydnb!')

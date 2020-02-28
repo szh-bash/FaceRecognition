@@ -27,7 +27,7 @@ def smooth(seq):
 # log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_wf_af-1_256_lr1e3_2|60k.log'
 # log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_wf_af05_64_128_lr1e3_2|60k.log'
 # log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_nVgg16_base_aug_DP05_2|90k.log'
-log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_mtwf_base_3|100k.log'
+log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_mtwf_base_2|100k.log'
 acc = []
 loss = []
 iters = 0
