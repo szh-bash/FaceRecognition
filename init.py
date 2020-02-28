@@ -5,7 +5,7 @@ import numpy as np
 from torch.utils.data import Dataset
 import progressbar as pb
 from utils.DataHandler import Augment
-from config import lfwPath, lfwDfPath, webPath, featPath, mtWebPath
+from config import lfwPath, lfwDfPath, webPath, featPath, mtWebPath, mtLfwPath
 # import utils.mtcnn_simple as mts
 # lfw: 5749, 13233
 # webface: 10575, 494414
@@ -28,6 +28,8 @@ class DataReader(Dataset):
                 filepath = webPath
             elif data_name == 'mtWebFace':
                 filepath = mtWebPath
+            elif data_name == 'mtLfw':
+                filepath = mtLfwPath
         path_dir = os.listdir(filepath)
         print('data path:', filepath)
         self.dataset = []
@@ -45,8 +47,8 @@ class DataReader(Dataset):
                    ' ', pb.Timer(),
                    ' ', pb.ETA(),
                    ' ', pb.FileTransferSpeed()]
-        pgb = pb.ProgressBar(widgets=widgets, maxval=494414 if data_name == 'webFace' or data_name == 'mtWebFace'
-        else 13233).start()
+        pgb = pb.ProgressBar(widgets=widgets,
+                             maxval=494414 if data_name == 'webFace' or data_name == 'mtWebFace' else 13233).start()
         for allDir in path_dir:
             child = os.path.join('%s/%s' % (filepath, allDir))
             child_dir = os.listdir(child)
@@ -63,9 +65,9 @@ class DataReader(Dataset):
                         cup.append(float(st))
                     self.feat.append(cup)
                 # elif self.st == 'mtcnn':
-                #     if not(os.path.exists(mtWebPath+'/'+allDir)):
-                #         os.mkdir(mtWebPath+'/'+allDir)
-                #     dst = os.path.join('%s/%s/%s' % (mtWebPath, allDir, allSon))
+                #     if not(os.path.exists(buildPath+'/'+allDir)):
+                #         os.mkdir(buildPath+'/'+allDir)
+                #     dst = os.path.join('%s/%s/%s' % (buildPath, allDir, allSon))
                 #     if mts.run(son, dst) < 0:
                 #         if mts.run(dst, dst) < 0:
                 #             fail += 1
@@ -86,7 +88,6 @@ class DataReader(Dataset):
             self.dataset = np.transpose(np.array(self.dataset, dtype=float), [0, 3, 1, 2])
             print(self.dataset.shape)
             self.x = (torch.FloatTensor(self.dataset) - 127.5) / 128.0
-            # self.x = torch.FloatTensor(self.dataset) / 255.
         elif self.st == 'feat':
             self.feat = np.array(self.feat, dtype=float)
         self.label = np.array(self.label)
@@ -113,4 +114,5 @@ class DataReader(Dataset):
 
 
 # if __name__ == '__main__':
-    # data = DataReader('mtcnn', 'webFace')
+#     buildPath = mtLfwPath
+#     data = DataReader('mtcnn', 'lfw')

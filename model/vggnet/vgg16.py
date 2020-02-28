@@ -4,9 +4,8 @@ from config import dp
 
 
 class Vgg16(nn.Module):
-    loss_type = ''
 
-    def __init__(self, loss, cls, st=None, p=dp):
+    def __init__(self, p=dp):
         super(Vgg16, self).__init__()
 
         # 3 * 224 * 224
@@ -36,15 +35,10 @@ class Vgg16(nn.Module):
         # view
 
         self.fc1 = nn.Linear(512 * 6 * 6, 4096)
-        self.drop_out1 = nn.Dropout(p=p)
+        # self.drop_out1 = nn.Dropout(p=p)
         self.fc2 = nn.Linear(4096, 4096)
-        self.drop_out2 = nn.Dropout(p=p)
-        self.fc3 = nn.Linear(4096, cls)
-        # softmax 1 * 1 * 1000
-
-
-        self.status = st
-        Vgg16.loss_type = loss
+        # self.drop_out2 = nn.Dropout(p=p)
+        # self.fc3 = nn.Linear(4096, cls)
 
     def forward(self, x):
         # x.size(0)即为batch_size
@@ -89,22 +83,16 @@ class Vgg16(nn.Module):
 
         # 展平
         out = out.view(in_size, -1)
-        if self.status == 'conv':
-            return out
 
         out = self.fc1(out)
         out = F.relu(out)
-        out = self.drop_out1(out)
+        # out = self.drop_out1(out)
         out = self.fc2(out)
-        # if self.status == 'fc2':
-        #     return out
         out = F.relu(out)
-        out = self.drop_out2(out)
-        if Vgg16.loss_type == 'arcFace':
-            return out
-        out = self.fc3(out)
+        # out = self.drop_out2(out)
+        return out
+        # out = self.fc3(out)
 
         # out = F.log_softmax(out, dim=1)
         # out = F.softmax(out, dim=1)
 
-        return out

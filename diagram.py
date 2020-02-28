@@ -20,12 +20,14 @@ def smooth(seq):
 # log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_af_128_3|20k.log'
 # log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_lfw_sm_128_3.log'
 # log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_wf_sm_128_2.log'
-log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_lfw_af-1_256_2.log'
-log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_lfw_af-2_flip_256_2.log'
-log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_wf_af-1_256_2.log'
-log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_wf_af-1_256_lr2e3_2|40k.log'
-log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_wf_af-1_256_lr1e3_2|60k.log'
-log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_wf_af05_64_128_lr1e3_2|60k.log'
+# log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_lfw_af-1_256_2.log'
+# log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_lfw_af-2_flip_256_2.log'
+# log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_wf_af-1_256_2.log'
+# log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_wf_af-1_256_lr2e3_2|40k.log'
+# log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_wf_af-1_256_lr1e3_2|60k.log'
+# log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_wf_af05_64_128_lr1e3_2|60k.log'
+# log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_nVgg16_base_aug_DP05_2|90k.log'
+log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_mtwf_base_3|100k.log'
 acc = []
 loss = []
 iters = 0
@@ -34,8 +36,6 @@ with open(log_path, 'r') as f:
         if re.search('iters', st) is None:
             continue
         iters += 1
-        if iters % 104 == 0:
-            continue
         loc = re.search(r'loss: [\d]*\.[\d]*', st).span()
         loss.append(float(st[loc[0]+6:loc[1]]))
         # loc = re.search(r'acc: [\d]*', st).span()
@@ -59,6 +59,6 @@ ax1.set_ylabel('loss')
 ax2.set_ylabel('train_acc')
 plt.xlabel('iterations')
 plt.title(log_path.split('/')[-1])
-fig.legend(bbox_to_anchor=(1, 0.5), bbox_transform=ax1.transAxes)
+fig.legend(bbox_to_anchor=(0.6, 1.), bbox_transform=ax1.transAxes)
 
 plt.show()
