@@ -30,29 +30,25 @@ def smooth(seq):
 log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_mtwf_base_2|100k.log'
 acc = []
 loss = []
-iters = 0
 with open(log_path, 'r') as f:
     for st in f.readlines():
         if re.search('iters', st) is None:
             continue
-        iters += 1
         loc = re.search(r'loss: [\d]*\.[\d]*', st).span()
         loss.append(float(st[loc[0]+6:loc[1]]))
-        # loc = re.search(r'acc: [\d]*', st).span()
-        # acc.append(float(st[loc[0]+5:loc[1]])*100/128)
         loc = re.search(r'acc: [\d]*\.[\d]', st).span()
         acc.append(float(st[loc[0]+5:loc[1]]))
 loss = smooth(loss)
 acc = smooth(acc)
 print(log_path)
 
-iters = len(acc)
-x = np.linspace(0, iters, iters)
+iterations = len(acc)
+x = np.linspace(0, iterations, iterations)
 fig, ax1 = plt.subplots()
 ax2 = ax1.twinx()
 ax1.plot(x, loss, label='loss', color='r')
 ax2.plot(x, acc, label='train_acc', color='b')
-ax1.set_xlim(0, iters)
+ax1.set_xlim(0, iterations)
 ax1.set_ylim(0., 24)
 ax2.set_ylim(0., 100.)
 ax1.set_ylabel('loss')
