@@ -117,8 +117,8 @@ if __name__ == '__main__':
             #           get_max_gradient(grads['feat_grad'].gather(1, train_y.view(-1, 1))))
 
             if iterations % 5000 == 0:
-                torch.save(net.state_dict(), modelSavePath++'_'+str(iterations)+'.pt')
-                print('Model saved to '+modelSavePath++'_'+str(iterations)+'.pt')
+                torch.save(net.state_dict(), modelSavePath+'_'+str(iterations)+'.pt')
+                print('Model saved to '+modelSavePath+'_'+str(iterations)+'.pt')
             # if iterations % 1 == 0:
             pred = get_label(feat)
             acc = (pred == train_y).sum().float() / train_y.size(0) * 100

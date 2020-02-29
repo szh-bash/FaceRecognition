@@ -37,7 +37,7 @@ def save_feat(ft, name_list, lim, path):
 
 # load data
 batch_size = 1
-data = DataReader('test', 'lfwDf')
+data = DataReader('test', 'mtLfw')
 data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=False, pin_memory=True)
 
 # load model
@@ -47,11 +47,10 @@ data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=False, pin
 # model_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_wf_af-1_256_lr1e3_2|60k_ep35.pt'
 device = torch.device('cuda:0')
 model = Vgg16().cuda()
-checkpoint = torch.load(modelPath)
-model.load_state_dict({k.replace('module.', ''): v for k, v in checkpoint['net'].items()})
+model.load_state_dict({k.replace('module.', ''): v for k, v in torch.load(modelPath).items()})
 model.eval()  # DropOut/BN
-print('epoch: %d, iter: %d, loss: %.5f, train_acc: %.5f' %
-      (checkpoint['epoch'], checkpoint['iter'], checkpoint['loss'], checkpoint['acc']))
+# print('epoch: %d, iter: %d, loss: %.5f, train_acc: %.5f' %
+#       (checkpoint['epoch'], checkpoint['iter'], checkpoint['loss'], checkpoint['acc']))
 
 # get feat
 print('Calculating Feature Map...')
