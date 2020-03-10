@@ -6,8 +6,8 @@ WO = 250
 HO = 250
 WR = 500
 HR = 500
-W = 222
-H = 222
+W = 224
+H = 224
 DW = WO - W
 DH = HO - H
 
@@ -33,7 +33,7 @@ class Augment:
     def flip(self, img):
         if self.rng.rand() < 0.5:
             # return img[:, :, ::-1]
-            img = torch.flip(img, (0,))
+            img = torch.flip(img, (2,))
         return img
 
     def run(self, img, label):

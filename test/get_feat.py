@@ -10,29 +10,31 @@ sys.path.append("..")
 from init import DataReader
 from model.vggnet.vgg16 import Vgg16
 
-from config import featPath, modelPath, dp
+from config import modelPath
 
 
 # check = torch.load(modelPath)
 # print(check)
 # exit(0)
+store = {}
 
 
-def save_feat(ft, name_list, lim, path):
+def save_feat(ft, name_list, lim):
     ft = ft.cpu()
-    if not os.path.exists(path):
-        os.mkdir(path)
+    # if not os.path.exists(path):
+    #     os.mkdir(path)
     for dx in range(lim):
         filepath, filename = os.path.split(name_list[dx])
         loc = re.search(r'[\d]+', filename).span()
         name = filename[0:loc[0]-1]
         idx = int(filename[loc[0]:loc[1]])
-        if not os.path.exists(path+name):
-            os.mkdir(path+name)
-        ftx = ft[dx].data.numpy()
-        ftx = ftx.tolist()
-        pt = pd.DataFrame(data=ftx)
-        pt.to_csv(path+name+'/'+str(idx), mode='w', index=None, header=None)
+        store[name + '/' + str(idx)] = ft[dx].data.numpy()
+        # if not os.path.exists(path+name):
+        #     os.mkdir(path+name)
+        # ftx = ft[dx].data.numpy()
+        # ftx = ftx.tolist()
+        # pt = pd.DataFrame(data=ftx)
+        # pt.to_csv(path+name+'/'+str(idx), mode='w', index=None, header=None)
 
 
 # load data
@@ -51,7 +53,6 @@ model.load_state_dict({k.replace('module.', ''): v for k, v in torch.load(modelP
 model.eval()  # DropOut/BN
 # print('epoch: %d, iter: %d, loss: %.5f, train_acc: %.5f' %
 #       (checkpoint['epoch'], checkpoint['iter'], checkpoint['loss'], checkpoint['acc']))
-
 # get feat
 print('Calculating Feature Map...')
 ids = 0
@@ -64,7 +65,6 @@ widgets = [' ', pb.Percentage(),
 pgb = pb.ProgressBar(widgets=widgets, maxval=Total).start()
 for i, (inputs, labels, names) in enumerate(data_loader):
     feat = model(inputs.to(device))
-    save_feat(feat, names, labels.size(0), featPath)
+    save_feat(feat, names, labels.size(0))
     pgb.update(i)
 pgb.finish()
-print('Feature Map saved to \'%s\' successfully!' % featPath[:-1])

@@ -50,3 +50,33 @@ def run(src, dst):
 
 
 # run('/dev/shm/CASIA-WebFace/0000045/011.jpg', 'test.jpg')
+
+
+# _, points = align.detect_face.detect_face(img, minsize, pnet, rnet, onet, threshold, factor)
+# if points.shape[0] == 10:
+#     if points.shape[1] == 1:
+#         # left eye(0,5) right eye(1,6) nose(2,7) left mouth(3,8) right mouth(4,9)
+#         leye = np.array((points[0], points[5])).reshape(2, )
+#         reye = np.array((points[1], points[6])).reshape(2, )
+#         lmouth = np.array((points[3], points[8])).reshape(2, )
+#         rmouth = np.array((points[4], points[9])).reshape(2, )
+#         ## 两眼中心，嘴巴中心,距离
+#         ceye = (leye + reye) / 2
+#         cmouth = (lmouth + rmouth) / 2
+#         dis_ce_cm = np.linalg.norm(ceye - cmouth)
+#         ratio = 48 / dis_ce_cm
+#         ## 变换后双眼和嘴巴的x坐标
+#         dis_le_re = np.linalg.norm(leye - reye)
+#         dis_lm_rm = np.linalg.norm(lmouth - rmouth)
+#         l_eye = np.array((144 / 2 - dis_le_re * ratio / 2, 48)).reshape(2, )
+#         r_eye = np.array((144 / 2 + dis_le_re * ratio / 2, 48)).reshape(2, )
+#         l_mouth = np.array((144 / 2 - dis_lm_rm * ratio / 2, 48 * 2)).reshape(2, )
+#         r_mouth = np.array((144 / 2 + dis_lm_rm * ratio / 2, 48 * 2)).reshape(2, )
+#         ## 透视变换，获取变换矩阵
+#         src = np.array((leye, reye, lmouth, rmouth))
+#         dist = np.array((l_eye, r_eye, l_mouth, r_mouth), dtype=np.float32)
+#         warpMatrix = cv2.getPerspectiveTransform(src, dist)
+#         img_align = cv2.warpPerspective(img, warpMatrix, (144, 144))
+#         misc.imsave(output_filename, img_align)
+#         print('save' + output_filename)
+#         print('time cost:', time.time() - time_start)

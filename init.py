@@ -5,7 +5,7 @@ import numpy as np
 from torch.utils.data import Dataset
 import progressbar as pb
 from utils.DataHandler import Augment
-from config import lfwPath, lfwDfPath, webPath, featPath, mtWebPath, mtLfwPath
+from config import lfwPath, lfwDfPath, webPath, mtWebPath, mtLfwPath
 # import utils.mtcnn_simple as mts
 # lfw: 5749, 13233
 # webface: 10575, 494414
@@ -17,7 +17,7 @@ aug = Augment()
 
 class DataReader(Dataset):
 
-    def __init__(self, st, data_name, filepath=featPath):
+    def __init__(self, st, data_name):
         self.st = st
         self.data_name = data_name
         if st != 'feat':
@@ -43,7 +43,7 @@ class DataReader(Dataset):
         self.feat = []
         self.len = 0
         fail = 0
-        widgets = ['Loading: ', pb.Percentage(),
+        widgets = ['Data Loading: ', pb.Percentage(),
                    ' ', pb.Bar(marker='>', left='[', right=']', fill='='),
                    ' ', pb.Timer(),
                    ' ', pb.ETA(),
@@ -98,7 +98,6 @@ class DataReader(Dataset):
                 # if person == 1000:
                 #     break
         pgb.finish()
-        print('Data Loaded!')
         # print(np.sort(np.array(nums))[-20:])
         if self.st == 'test':
             self.dataset = np.transpose(np.array(self.dataset, dtype=float), [0, 3, 1, 2])
@@ -119,9 +118,9 @@ class DataReader(Dataset):
             img = torch.FloatTensor(np.transpose(np.array(cv2.imread(self.name[index]), dtype=float), [2, 0, 1]))
             return aug.run(img, self.y[index])
         elif self.st == 'test':
-            x = (250-222) // 2
-            y = (250-222) // 2
-            return self.x[index, :, x:x + 222, y:y + 222], self.y[index], self.name[index]
+            x = (250-224) // 2
+            y = (250-224) // 2
+            return self.x[index, :, x:x + 224, y:y + 224], self.y[index], self.name[index]
         else:
             exit(-1)
 
@@ -132,5 +131,10 @@ class DataReader(Dataset):
 if __name__ == '__main__':
     # buildPath = mtLfwPath
     # data = DataReader('mtcnn', 'lfw')
-    data = DataReader('train', 'mtWebFace')
-
+    # data = DataReader('test', 'mtLfw')
+    # img = data.__getitem__(0)[0].numpy()
+    img = np.array(cv2.imread(mtWebPath+'/0000188/183.jpg'), dtype=float)
+    y = 144
+    x = (250 - y) // 2
+    img = img[x:x+y, x:x+y, :]
+    cv2.imwrite('crop.jpg', img)

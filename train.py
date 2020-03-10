@@ -44,7 +44,7 @@ if __name__ == '__main__':
     net = Vgg16()
     device = torch.device("cuda:0")
     if torch.cuda.device_count() > 1:
-        devices_ids = [0, 1, 2, 3, 4, 5]
+        devices_ids = [0, 1, 2]
         net = nn.DataParallel(net, device_ids=devices_ids)
         print("Let's use %d/%d GPUs!" % (len(devices_ids), torch.cuda.device_count()))
     net.to(device)
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     optimizer = optim.Adam([{'params': net.parameters()},
                             {'params': arcFace.parameters()}],
                            lr=learning_rate, weight_decay=weight_decay)
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[200, 200000], gamma=0.1, last_epoch=-1)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[200, 164000], gamma=0.1, last_epoch=-1)
     print(net.parameters())
     print(arcFace.parameters())
     if os.path.exists(modelSavePath+'.tar'):
@@ -67,6 +67,8 @@ if __name__ == '__main__':
         iter_start = checkpoint['iter']
         print('Load checkpoint Successfully!')
         print('epoch: %d\niter: %d' % (epoch_start, iter_start))
+        scheduler.state_dict()['milestones'][164000] = 1
+        print(scheduler.state_dict())
     else:
         epoch_start = 0
         iter_start = 0
