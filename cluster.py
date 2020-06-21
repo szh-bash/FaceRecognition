@@ -47,6 +47,8 @@ for epoch in range(40):
 
 
 exit(0)
+
+
 def draw(i):
     cls1color = '#00FFFF'
     cls2color = '#FF00FF'

@@ -8,6 +8,8 @@ def smooth(seq):
     n = len(seq)
     res = []
     for i in range(n-m):
+        if i == 120000:
+            print(seq[i])
         sum_ = 0
         for j in range(m):
             sum_ += seq[i+j]
@@ -26,8 +28,11 @@ def smooth(seq):
 # log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_wf_af-1_256_lr2e3_2|40k.log'
 # log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_wf_af-1_256_lr1e3_2|60k.log'
 # log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_wf_af05_64_128_lr1e3_2|60k.log'
-# log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_nVgg16_base_aug_DP05_2|90k.log'
-log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_224_mtwfc_base_flip_2|200k.log'
+log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_nVgg16_base_aug_DP05_2|90k.log'
+# log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_224_mtwfc_base_flip_2|200k.log'
+# log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16-T_base_2|200k.log'
+# log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_256D_wf_af-5e-2.log'
+# log_path = '/data/shenzhonghai/FaceClustering/logs/train_log_Vgg16_+256_af-5e-2.log'
 acc = []
 loss = []
 with open(log_path, 'r') as f:

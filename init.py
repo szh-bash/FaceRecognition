@@ -1,5 +1,6 @@
 import cv2
 import os
+import sys
 import torch
 import numpy as np
 from torch.utils.data import Dataset
@@ -11,7 +12,6 @@ from config import lfwPath, lfwDfPath, webPath, mtWebPath, mtLfwPath
 # webface: 10575, 494414
 # clean-webface: 10575, 455594
 
-
 aug = Augment()
 
 
@@ -20,6 +20,7 @@ class DataReader(Dataset):
     def __init__(self, st, data_name):
         self.st = st
         self.data_name = data_name
+        buildPath='/data/shenzhonghai/mtwf_112'
         if st != 'feat':
             if data_name == 'lfw':
                 filepath = lfwPath
@@ -49,7 +50,7 @@ class DataReader(Dataset):
                    ' ', pb.ETA(),
                    ' ', pb.FileTransferSpeed()]
         pgb = pb.ProgressBar(widgets=widgets,
-                             maxval=455594 if data_name == 'webFace' or data_name == 'mtWebFace' else 13233).start()
+                             maxval=494414 if data_name == 'webFace' or data_name == 'mtWebFace' else 13233).start()
         if self.st == 'train':
             self.person = -1
             file = open('/dev/shm/cleaned_list.txt')
@@ -80,14 +81,20 @@ class DataReader(Dataset):
                         for st in fp:
                             cup.append(float(st))
                         self.feat.append(cup)
-                    # elif self.st == 'mtcnn':
-                    #     if not(os.path.exists(buildPath+'/'+allDir)):
-                    #         os.mkdir(buildPath+'/'+allDir)
-                    #     dst = os.path.join('%s/%s/%s' % (buildPath, allDir, allSon))
-                    #     if mts.run(son, dst) < 0:
-                    #         if mts.run(dst, dst) < 0:
-                    #             fail += 1
-
+                    elif self.st == 'mtcnn' or self.st == 'resize':
+                        if not(os.path.exists(buildPath+'/'+allDir)):
+                            os.mkdir(buildPath+'/'+allDir)
+                        dst = os.path.join('%s/%s/%s' % (buildPath, allDir, allSon))
+                        if self.st == 'mtcnn':
+                            # if mts.run(son, dst) < 0 and mts.run(dst, dst) < 0:
+                            #         fail += 1
+                            # else:
+                            # None
+                            None
+                        else:
+                            img = np.array(cv2.imread(son), dtype=float)
+                            img = cv2.resize(img, (112, 112))
+                            cv2.imwrite(dst, img)
                     self.label.append(self.person)
                     self.name.append(son)
                     pgb.update(self.len)
@@ -99,10 +106,12 @@ class DataReader(Dataset):
                 #     break
         pgb.finish()
         # print(np.sort(np.array(nums))[-20:])
+        print(self.st)
         if self.st == 'test':
+            # print(self.dataset)
             self.dataset = np.transpose(np.array(self.dataset, dtype=float), [0, 3, 1, 2])
-            print(self.dataset.shape)
             self.x = (torch.FloatTensor(self.dataset) - 127.5) / 128.0
+            print(self.dataset.shape)
         elif self.st == 'feat':
             self.feat = np.array(self.feat, dtype=float)
         self.label = np.array(self.label)
@@ -115,12 +124,13 @@ class DataReader(Dataset):
 
     def __getitem__(self, index):
         if self.st == 'train':
-            img = torch.FloatTensor(np.transpose(np.array(cv2.imread(self.name[index]), dtype=float), [2, 0, 1]))
-            return aug.run(img, self.y[index])
+            image = np.array(cv2.imread(self.name[index]), dtype=float)
+            image, label = aug.run(image, self.y[index])
+            image = torch.FloatTensor(image)
+            return image, label
         elif self.st == 'test':
-            x = (250-224) // 2
-            y = (250-224) // 2
-            return self.x[index, :, x:x + 224, y:y + 224], self.y[index], self.name[index]
+            size = (250-224) // 2
+            return self.x[index, :, size:size + 224, size:size + 224], self.y[index], self.name[index]
         else:
             exit(-1)
 
@@ -129,12 +139,13 @@ class DataReader(Dataset):
 
 
 if __name__ == '__main__':
-    # buildPath = mtLfwPath
-    # data = DataReader('mtcnn', 'lfw')
-    # data = DataReader('test', 'mtLfw')
-    # img = data.__getitem__(0)[0].numpy()
-    img = np.array(cv2.imread(mtWebPath+'/0000188/183.jpg'), dtype=float)
-    y = 144
-    x = (250 - y) // 2
-    img = img[x:x+y, x:x+y, :]
-    cv2.imwrite('crop.jpg', img)
+    # img = np.array(cv2.imread(mtWebPath+'/0000102/038.jpg'), dtype=float)
+    # y = 224
+    # s = 320
+    # x = (s - y) // 2
+    # img = cv2.resize(img, (s,s))
+    # img = img[x:x+y, x:x+y, :]
+    # img = img[:, ::-1, :]
+    # cv2.imwrite('rcf.jpg', img)
+    # print(img.shape)
+    DataReader('resize', 'mtWebFace')

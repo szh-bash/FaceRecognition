@@ -3,12 +3,14 @@ import re
 import sys
 import torch
 import pandas as pd
-from torch.utils.data import DataLoader
+import numpy as np
 import progressbar as pb
 
 sys.path.append("..")
 from init import DataReader
 from model.vggnet.vgg16 import Vgg16
+from utils.misc import write_feat, write_meta
+from torch.utils.data import DataLoader
 
 from config import modelPath
 
@@ -17,6 +19,7 @@ from config import modelPath
 # print(check)
 # exit(0)
 store = {}
+feats = []
 
 
 def save_feat(ft, name_list, lim):
@@ -29,6 +32,7 @@ def save_feat(ft, name_list, lim):
         name = filename[0:loc[0]-1]
         idx = int(filename[loc[0]:loc[1]])
         store[name + '/' + str(idx)] = ft[dx].data.numpy()
+        feats.append(ft[dx].data.numpy())
         # if not os.path.exists(path+name):
         #     os.mkdir(path+name)
         # ftx = ft[dx].data.numpy()
@@ -49,6 +53,7 @@ data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=False, pin
 # model_path = '/data/shenzhonghai/FaceClustering/models/Vgg16_wf_af-1_256_lr1e3_2|60k_ep35.pt'
 device = torch.device('cuda:0')
 model = Vgg16().cuda()
+print(model)
 model.load_state_dict({k.replace('module.', ''): v for k, v in torch.load(modelPath).items()})
 model.eval()  # DropOut/BN
 # print('epoch: %d, iter: %d, loss: %.5f, train_acc: %.5f' %
@@ -68,3 +73,15 @@ for i, (inputs, labels, names) in enumerate(data_loader):
     save_feat(feat, names, labels.size(0))
     pgb.update(i)
 pgb.finish()
+
+ft_path = '/dev/shm/DATA/wf-mtcnn-vgg16/features.bin'
+labels_path = '/dev/shm/DATA/wf-mtcnn-vgg16/labels.meta'
+# print('Feature saved to %s' % ft_path)
+feats = np.array(feats)
+write_feat(ft_path, feats)
+print('Label saved to %s' % labels_path)
+lbs = data.label.astype(int).tolist()
+pt = pd.DataFrame(data=lbs)
+pt.to_csv(labels_path, mode='w', index=None, header=None)
+# print(lbs, file=f)
+# write_meta(labels_path, lbs)

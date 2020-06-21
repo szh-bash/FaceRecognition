@@ -1,2 +1,1 @@
-CUDA_VISIBLE_DEVICES=1 python get_feat.py
-python roc.py
+CUDA_VISIBLE_DEVICES=0 python roc.py
