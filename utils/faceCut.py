@@ -173,7 +173,7 @@ if __name__ == '__main__':
     for allDir in path_dir:
         child = os.path.join('%s/%s' % (webPath, allDir))
         child_dir = os.listdir(child)
-        acc = os.path.join('%s/%s' % (ACWebPath, allDir))
+        acc = os.path.join('Multi-%s/%s' % (ACWebPath, allDir))
         if not os.path.exists(acc):
             os.mkdir(acc)
         for allSon in child_dir:
