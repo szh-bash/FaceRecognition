@@ -2,7 +2,6 @@ import re
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
-# import progressbar as pb
 sys.path.append("..")
 from config import modelPath, pairsTxtPath
 from get_feat import store

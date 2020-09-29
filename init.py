@@ -1,11 +1,10 @@
 import cv2
 import os
-import sys
 import torch
 import numpy as np
 from torch.utils.data import Dataset
 import progressbar as pb
-from utils.DataHandler import Augment
+from utils.DataHandler import Augment, MinS, MaxS, W, H
 from config import lfwPath, lfwDfPath, webPath, mtWebPath, mtLfwPath
 # import utils.mtcnn_simple as mts
 # lfw: 5749, 13233
@@ -20,18 +19,18 @@ class DataReader(Dataset):
     def __init__(self, st, data_name):
         self.st = st
         self.data_name = data_name
-        buildPath='/data/shenzhonghai/mtwf_112'
-        if st != 'feat':
-            if data_name == 'lfw':
-                filepath = lfwPath
-            elif data_name == 'lfwDf':
-                filepath = lfwDfPath
-            elif data_name == 'webFace':
-                filepath = webPath
-            elif data_name == 'mtWebFace':
-                filepath = mtWebPath
-            elif data_name == 'mtLfw':
-                filepath = mtLfwPath
+        # if st != 'feat':
+        filepath = None
+        if data_name == 'lfw':
+            filepath = lfwPath
+        elif data_name == 'lfwDf':
+            filepath = lfwDfPath
+        elif data_name == 'webFace':
+            filepath = webPath
+        elif data_name == 'mtWebFace':
+            filepath = mtWebPath
+        elif data_name == 'mtLfw':
+            filepath = mtLfwPath
         path_dir = os.listdir(filepath)
         print('data path:', filepath)
         self.dataset = []
@@ -39,7 +38,6 @@ class DataReader(Dataset):
         self.name = []
         self.person = 0
         self.rng = np.random
-        # nums = []
         self.idx = []
         self.feat = []
         self.len = 0
@@ -61,8 +59,9 @@ class DataReader(Dataset):
                     self.person += 1
                 st = st[0].split('\\')
                 self.len += 1
-                self.name.append(mtWebPath+'/'+st[0]+'/'+st[1])
-                self.label.append(self.person)
+                if os.path.exists(mtWebPath+'/'+st[0]+'/'+st[1]):
+                    self.name.append(mtWebPath+'/'+st[0]+'/'+st[1])
+                    self.label.append(self.person)
                 pgb.update(self.len)
             self.person += 1
         else:
@@ -81,44 +80,23 @@ class DataReader(Dataset):
                         for st in fp:
                             cup.append(float(st))
                         self.feat.append(cup)
-                    elif self.st == 'mtcnn' or self.st == 'resize':
-                        if not(os.path.exists(buildPath+'/'+allDir)):
-                            os.mkdir(buildPath+'/'+allDir)
-                        dst = os.path.join('%s/%s/%s' % (buildPath, allDir, allSon))
-                        if self.st == 'mtcnn':
-                            # if mts.run(son, dst) < 0 and mts.run(dst, dst) < 0:
-                            #         fail += 1
-                            # else:
-                            # None
-                            None
-                        else:
-                            img = np.array(cv2.imread(son), dtype=float)
-                            img = cv2.resize(img, (112, 112))
-                            cv2.imwrite(dst, img)
                     self.label.append(self.person)
                     self.name.append(son)
                     pgb.update(self.len)
                     self.len += 1
                     tmp += 1
-                # nums.append(tmp)
                 self.person += 1
-                # if person == 1000:
-                #     break
         pgb.finish()
-        # print(np.sort(np.array(nums))[-20:])
         print(self.st)
         if self.st == 'test':
-            # print(self.dataset)
-            self.dataset = np.transpose(np.array(self.dataset, dtype=float), [0, 3, 1, 2])
-            self.x = (torch.FloatTensor(self.dataset) - 127.5) / 128.0
-            print(self.dataset.shape)
+            self.dataset = np.array(self.dataset, dtype=float)
         elif self.st == 'feat':
             self.feat = np.array(self.feat, dtype=float)
         self.label = np.array(self.label)
         print('Types:', self.person)
         print('Label:', self.label.shape)
         print('Label_value:', self.label[345:350])
-        self.y = torch.LongTensor(self.label)
+        self.y = torch.from_numpy(self.label).long()
         if self.st == 'mtcnn':
             print(fail)
 
@@ -126,11 +104,17 @@ class DataReader(Dataset):
         if self.st == 'train':
             image = np.array(cv2.imread(self.name[index]), dtype=float)
             image, label = aug.run(image, self.y[index])
-            image = torch.FloatTensor(image)
+            image = torch.from_numpy(image).float()
             return image, label
         elif self.st == 'test':
-            size = (250-224) // 2
-            return self.x[index, :, size:size + 224, size:size + 224], self.y[index], self.name[index]
+            size = (MinS + MaxS) // 2
+            idx = (size - W) // 2
+            img = self.dataset[index]
+            image = cv2.resize(img, (size, size))
+            image = image[idx:idx + H, idx:idx + W, :]
+            image = np.transpose(image, [2, 0, 1])
+            image = torch.from_numpy((image - 127.5) / 128).float()
+            return image, self.y[index], self.name[index]
         else:
             exit(-1)
 
@@ -148,4 +132,5 @@ if __name__ == '__main__':
     # img = img[:, ::-1, :]
     # cv2.imwrite('rcf.jpg', img)
     # print(img.shape)
-    DataReader('resize', 'mtWebFace')
+    # DataReader('resize', 'mtWebFace')
+    pass

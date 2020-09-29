@@ -6,9 +6,10 @@ lfwDfPath = '/dev/shm/lfw-deepfunneled'
 mtLfwPath = '/dev/shm/mtcnn-lfw'
 webPath = '/dev/shm/CASIA-WebFace'
 mtWebPath = '/dev/shm/mtcnn-CASIA-WebFace'
+ACWebPath = '/dev/shm/Alined-Cropped-CASIA-WebFace'
 
 # train
-Total = 200
+Total = 60
 batch_size = 256
 learning_rate = 0.001
 weight_decay = 0.00000
