@@ -73,7 +73,6 @@ def calc(filepath):
                 roc += count * pow(1 / _test_total * 2, 2)
             _true_ratio.append(count / _test_total * 2)
     _true_ratio[-1] = 1.0
-    # print(true_ratio)
     eer = np.abs(1 - np.array(_true_ratio) - np.linspace(0, 1.0, (_test_total // 2)))
     print('@FAR = 0.00100: TAR = %.5f' % _true_ratio[2])
     print('@FAR = 0.01000: TAR = %.5f' % _true_ratio[29])
@@ -113,6 +112,7 @@ if __name__ == '__main__':
     thresholds = np.linspace(thresholds_left, thresholds_right, length)
     test_server()
     test_acc, test_total, true_ratio = calc(modelPath)
+
     # plotting test_acc
     fig, ax1 = plt.subplots()
     ax2 = ax1.twinx()
@@ -126,7 +126,5 @@ if __name__ == '__main__':
     plt.xlabel('thresholds')
     plt.title(modelPath.split('/')[-1])
     fig.legend(bbox_to_anchor=(0.6, 1.), bbox_transform=ax1.transAxes)
-
     plt.show()
-
     print(modelPath)
