@@ -14,14 +14,12 @@ MaxS = 256
 
 class Augment:
     rng = np.random
-    _OH = 0
-    _OW = 0
 
     def cutout(self, img):
         if self.rng.rand() < 0.5:
-            y = int(self.rng.rand() * self._OH) + 1
-            x = int(self.rng.rand() * self._OW) + 1
-            img[y:min(self._OH, y+_CH), x:min(self._OW, x+_CW), :] = 255.
+            y = int(self.rng.rand() * H) + 1
+            x = int(self.rng.rand() * W) + 1
+            img[y:min(H, y+_CH), x:min(W, x+_CW), :] = 255.
         return img
 
     def resize(self, img):
@@ -46,16 +44,18 @@ class Augment:
             img = img[:, ::-1, :]
         return img
 
-    def cut(self, imgs):
-        pass
+    def gaussian_blur(self, img):
+        if self.rng.rand() < 0.15:
+            img = cv2.blur(img, (5, 5))
+        return img
 
     def run(self, img, label):
-        self._OH = img.shape[0]
-        self._OW = img.shape[1]
+        img = cv2.resize(img, (H, W))
         img = self.resize(img)
         # img = self.rotate(img)
-        img = self.flip(img)
         img = self.crop(img)
+        img = self.gaussian_blur(img)
+        img = self.flip(img)
         img = np.transpose(img, [2, 0, 1])
         img = (img - 127.5) / 128.0
         return img, label

@@ -19,7 +19,7 @@ Total = 30
 batch_size = 256
 learning_rate = 0.001
 weight_decay = 0.00000
-modelName = 'resnet50_acWebFace_base+'
+modelName = 'resnet50_acWebFace_base+_gaussianBlur'
 modelSavePath = '/data/shenzhonghai/FaceClustering/models/'+modelName
 # test
 modelPath = '/data/shenzhonghai/FaceClustering/models/'+modelName+'.tar'
