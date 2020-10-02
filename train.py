@@ -1,5 +1,6 @@
 import os
 import time
+import socket
 
 import torch
 import torch.nn as nn
@@ -10,7 +11,7 @@ from torch.utils.data import DataLoader
 from model.resnet.resnet import resnet50
 from loss import ArcMarginProduct as ArcFace
 
-from config import learning_rate, batch_size, weight_decay, Total, modelSavePath
+from config import learning_rate, batch_size, weight_decay, Total, modelSavePath, server
 from init import DataReader
 
 
@@ -35,9 +36,18 @@ def get_max_gradient(g):
         return pm
 
 
+def tester(filepath):
+    ip_port = ('127.0.0.1', server)
+    s = socket.socket()
+    s.connect(ip_port)
+    s.sendall(filepath.encode())
+    print('Test request sent!')
+    s.close()
+
+
 if __name__ == '__main__':
     # set config
-    data = DataReader('train', 'mtWebFace')
+    data = DataReader('train', 'acWebFace')
     slides = (data.len - 1) // batch_size + 1
     grads = {}
 
@@ -57,7 +67,7 @@ if __name__ == '__main__':
     optimizer = optim.Adam([{'params': net.parameters()},
                             {'params': arcFace.parameters()}],
                            lr=learning_rate, weight_decay=weight_decay)
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[20000], gamma=0.1, last_epoch=-1)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[32000, 44000], gamma=0.1, last_epoch=-1)
     print(net.parameters())
     print(arcFace.parameters())
     if os.path.exists(modelSavePath+'.tar'):
@@ -70,7 +80,6 @@ if __name__ == '__main__':
         iter_start = checkpoint['iter']
         print('Load checkpoint Successfully!')
         print('epoch: %d\niter: %d' % (epoch_start, iter_start))
-        scheduler.state_dict()['milestones'][164000] = 1
         print(scheduler.state_dict())
     else:
         epoch_start = 0
@@ -151,5 +160,7 @@ if __name__ == '__main__':
                  'acc': acc_bc}
         torch.save(state, modelSavePath+'.tar')
         print('Model saved to %s' % (modelSavePath+'.tar'))
+        tester(modelSavePath+'.tar')
 
+    tester('exit')
     print('fydnb!')

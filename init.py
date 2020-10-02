@@ -5,7 +5,7 @@ import numpy as np
 from torch.utils.data import Dataset
 import progressbar as pb
 from utils.DataHandler import Augment, MinS, MaxS, W, H
-from config import lfwPath, lfwDfPath, webPath, mtWebPath, mtLfwPath
+from config import lfwPath, lfwDfPath, webPath, mtWebPath, mtLfwPath, ACWebPath, ACLfwPath, MulACLfwPath, MulACLfwDfPath
 # import utils.mtcnn_simple as mts
 # lfw: 5749, 13233
 # webface: 10575, 494414
@@ -19,7 +19,6 @@ class DataReader(Dataset):
     def __init__(self, st, data_name):
         self.st = st
         self.data_name = data_name
-        # if st != 'feat':
         filepath = None
         if data_name == 'lfw':
             filepath = lfwPath
@@ -31,6 +30,14 @@ class DataReader(Dataset):
             filepath = mtWebPath
         elif data_name == 'mtLfw':
             filepath = mtLfwPath
+        elif data_name == 'acWebFace':
+            filepath = ACWebPath
+        elif data_name == 'ACLfw':
+            filepath = ACLfwPath
+        elif data_name == 'MulACLfw':
+            filepath = MulACLfwPath
+        elif data_name == 'MulACLfwDf':
+            filepath = MulACLfwDfPath
         path_dir = os.listdir(filepath)
         print('data path:', filepath)
         self.dataset = []
@@ -48,7 +55,7 @@ class DataReader(Dataset):
                    ' ', pb.ETA(),
                    ' ', pb.FileTransferSpeed()]
         pgb = pb.ProgressBar(widgets=widgets,
-                             maxval=494414 if data_name == 'webFace' or data_name == 'mtWebFace' else 13233).start()
+                             maxval=494414 if data_name == 'acWebFace' or data_name == 'mtWebFace' else 13233).start()
         if self.st == 'train':
             self.person = -1
             file = open('/dev/shm/cleaned_list.txt')
@@ -59,8 +66,8 @@ class DataReader(Dataset):
                     self.person += 1
                 st = st[0].split('\\')
                 self.len += 1
-                if os.path.exists(mtWebPath+'/'+st[0]+'/'+st[1]):
-                    self.name.append(mtWebPath+'/'+st[0]+'/'+st[1])
+                if os.path.exists(filepath+'/'+st[0]+'/'+st[1]):
+                    self.name.append(filepath+'/'+st[0]+'/'+st[1])
                     self.label.append(self.person)
                 pgb.update(self.len)
             self.person += 1
@@ -88,17 +95,14 @@ class DataReader(Dataset):
                 self.person += 1
         pgb.finish()
         print(self.st)
-        if self.st == 'test':
-            self.dataset = np.array(self.dataset, dtype=float)
-        elif self.st == 'feat':
+        if self.st == 'feat':
             self.feat = np.array(self.feat, dtype=float)
         self.label = np.array(self.label)
+        self.len = self.label.shape[0]
         print('Types:', self.person)
         print('Label:', self.label.shape)
         print('Label_value:', self.label[345:350])
         self.y = torch.from_numpy(self.label).long()
-        if self.st == 'mtcnn':
-            print(fail)
 
     def __getitem__(self, index):
         if self.st == 'train':
@@ -109,7 +113,7 @@ class DataReader(Dataset):
         elif self.st == 'test':
             size = (MinS + MaxS) // 2
             idx = (size - W) // 2
-            img = self.dataset[index]
+            img = np.array(self.dataset[index], dtype=float)
             image = cv2.resize(img, (size, size))
             image = image[idx:idx + H, idx:idx + W, :]
             image = np.transpose(image, [2, 0, 1])

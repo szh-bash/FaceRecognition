@@ -7,11 +7,12 @@ import numpy as np
 from PIL import Image
 import face_recognition
 import progressbar as pb
-from multiprocessing import Pool, Queue, Process, Lock
+from multiprocessing import Pool, Queue, Process, Lock, Value
 # from threading import Lock
 from collections import defaultdict
 sys.path.append('..')
-from config import webPath, ACWebPath
+from config import webPath, mtWebPath, ACWebPath, MulACWebPath, MulACmtWebPath, \
+                    lfwPath, mtLfwPath, lfwDfPath, ACLfwPath, MulACLfwPath, MulACLfwDfPath, MulACmtLfwPath
 
 
 def align_face(image_array, landmarks):
@@ -123,31 +124,39 @@ def deal_face(img_path):
     return cropped_face
 
 
-q = Queue()
+# q = Queue()
+q = []
 lock = Lock()
-count = 0
+count = Value('i', 0)
+# length = 13233
+length = 494414
+
 widgets = ['Dealing: ', pb.Percentage(),
            ' ', pb.Bar(marker='>', left='[', right=']', fill='='),
            ' ', pb.Timer(),
            ' ', pb.ETA(),
            ' ', pb.FileTransferSpeed()]
-pgb = pb.ProgressBar(widgets=widgets, maxval=494414)
+pgb = pb.ProgressBar(widgets=widgets, maxval=length)
 
 
-def worker():
+def worker(le, ri, mode):
     global q
     global lock
     global count
     global pgb
-    while not q.empty():
-        msg = q.get(False)
-        lock.acquire()
-        pgb.update(count)
-        count += 1
-        lock.release()
+    for j in range(le, ri):
+        msg = q[j]
+        # lock.acquire()
+        with lock:
+            pgb.update(count.value)
+            count.value += 1
+        # lock.release()
         face = deal_face(msg[0])
         if len(face) == 0:
-            continue
+            if md == 1:
+                face = cv2.imread(msg[0])
+            else:
+                continue
         cv2.imwrite(msg[1], face)
     # cv2.imwrite(acs, deal_face(son))
     # global lock
@@ -165,31 +174,42 @@ if __name__ == '__main__':
     # print(res.shape)
     # exit(0)
 
-    num = 12
+    num = 8
 
-    path_dir = os.listdir(webPath)
-    if not os.path.exists(ACWebPath):
-        os.mkdir(ACWebPath)
+    md = 1
+    origin_path = mtWebPath
+    target_path = MulACmtWebPath
+    path_dir = os.listdir(origin_path)
+    if not os.path.exists(target_path):
+        os.mkdir(target_path)
     for allDir in path_dir:
-        child = os.path.join('%s/%s' % (webPath, allDir))
+        child = os.path.join('%s/%s' % (origin_path, allDir))
         child_dir = os.listdir(child)
-        acc = os.path.join('Multi-%s/%s' % (ACWebPath, allDir))
+        acc = os.path.join('%s/%s' % (target_path, allDir))
         if not os.path.exists(acc):
             os.mkdir(acc)
         for allSon in child_dir:
             son = os.path.join('%s/%s' % (child, allSon))
             acs = os.path.join('%s/%s' % (acc, allSon))
-            q.put([son, acs])
+            q.append([son, acs])
+            # q.put([son, acs])
             # p.apply_async(worker, args=(son, acs))
     print('DATA LOADED!')
-    print(q.qsize())
+    print(np.array(q).shape)
     pgb.start()
 
-    p = Pool(num)
+    # p = Pool(num)
+    p = []
+    for i in range(num-1):
+        # p.apply_async(worker)
+        p.append(Process(target=worker, args=(length//num*i, length//num*(i+1), md)))
+    p.append(Process(target=worker, args=(length//num*(num-1), length, md)))
     for i in range(num):
-        p.apply_async(worker)
-    p.close()
+        p[i].start()
+    # p.close()
     # print('There''re %d image which can''t be recognized!' % fail)
-    p.join()
+    # p.join()
+    for i in range(num):
+        p[i].join()
     pgb.finish()
     print('MISSION COMPLETED!')
