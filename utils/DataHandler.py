@@ -45,7 +45,7 @@ class Augment:
         return img
 
     def gaussian_blur(self, img):
-        if self.rng.rand() < 0.15:
+        if self.rng.rand() < 0.3:
             img = cv2.blur(img, (5, 5))
         return img
 

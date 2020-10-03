@@ -47,7 +47,7 @@ def tester(filepath):
 
 if __name__ == '__main__':
     # set config
-    data = DataReader('train', 'acWebFace')
+    data = DataReader('train', 'MulACmtWebFace')
     slides = (data.len - 1) // batch_size + 1
     grads = {}
 

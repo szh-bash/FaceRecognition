@@ -124,23 +124,7 @@ def deal_face(img_path):
     return cropped_face
 
 
-# q = Queue()
-q = []
-lock = Lock()
-count = Value('i', 0)
-# length = 13233
-length = 494414
-
-widgets = ['Dealing: ', pb.Percentage(),
-           ' ', pb.Bar(marker='>', left='[', right=']', fill='='),
-           ' ', pb.Timer(),
-           ' ', pb.ETA(),
-           ' ', pb.FileTransferSpeed()]
-pgb = pb.ProgressBar(widgets=widgets, maxval=length)
-
-
-def worker(le, ri, mode):
-    global q
+def worker(le, ri):
     global lock
     global count
     global pgb
@@ -158,27 +142,27 @@ def worker(le, ri, mode):
             else:
                 continue
         cv2.imwrite(msg[1], face)
-    # cv2.imwrite(acs, deal_face(son))
-    # global lock
-    # lock.acquire()
-    # global count
-    # global pgb
-    # pgb.update(count)
-    # count += 1
-    # lock.release()
 
 
 if __name__ == '__main__':
-    # img_path = '/dev/shm/CASIA-WebFace/6573530/054.jpg'
-    # res = deal_face(img_path)
-    # print(res.shape)
-    # exit(0)
-
+    q = []
     num = 8
+    lock = Lock()
+    count = Value('i', 0)
+    length = 13233
+    # length = 494414
+
+    widgets = ['Dealing: ', pb.Percentage(),
+               ' ', pb.Bar(marker='>', left='[', right=']', fill='='),
+               ' ', pb.Timer(),
+               ' ', pb.ETA(),
+               ' ', pb.FileTransferSpeed()]
+    pgb = pb.ProgressBar(widgets=widgets, maxval=length)
 
     md = 1
-    origin_path = mtWebPath
-    target_path = MulACmtWebPath
+    origin_path = mtLfwPath
+    target_path = MulACmtLfwPath
+    print(origin_path+' to '+target_path)
     path_dir = os.listdir(origin_path)
     if not os.path.exists(target_path):
         os.mkdir(target_path)
@@ -192,23 +176,16 @@ if __name__ == '__main__':
             son = os.path.join('%s/%s' % (child, allSon))
             acs = os.path.join('%s/%s' % (acc, allSon))
             q.append([son, acs])
-            # q.put([son, acs])
-            # p.apply_async(worker, args=(son, acs))
     print('DATA LOADED!')
     print(np.array(q).shape)
     pgb.start()
 
-    # p = Pool(num)
     p = []
     for i in range(num-1):
-        # p.apply_async(worker)
         p.append(Process(target=worker, args=(length//num*i, length//num*(i+1), md)))
     p.append(Process(target=worker, args=(length//num*(num-1), length, md)))
     for i in range(num):
         p[i].start()
-    # p.close()
-    # print('There''re %d image which can''t be recognized!' % fail)
-    # p.join()
     for i in range(num):
         p[i].join()
     pgb.finish()

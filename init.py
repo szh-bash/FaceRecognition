@@ -5,7 +5,8 @@ import numpy as np
 from torch.utils.data import Dataset
 import progressbar as pb
 from utils.DataHandler import Augment, MinS, MaxS, W, H
-from config import lfwPath, lfwDfPath, webPath, mtWebPath, mtLfwPath, ACWebPath, ACLfwPath, MulACLfwPath, MulACLfwDfPath
+from config import lfwPath, lfwDfPath, webPath, mtWebPath, \
+    mtLfwPath, ACWebPath, ACLfwPath, MulACLfwPath, MulACmtLfwPath, MulACLfwDfPath, MulACmtWebPath
 # import utils.mtcnn_simple as mts
 # lfw: 5749, 13233
 # webface: 10575, 494414
@@ -24,20 +25,26 @@ class DataReader(Dataset):
             filepath = lfwPath
         elif data_name == 'lfwDf':
             filepath = lfwDfPath
-        elif data_name == 'webFace':
+        elif data_name == 'WebFace':
             filepath = webPath
         elif data_name == 'mtWebFace':
             filepath = mtWebPath
         elif data_name == 'mtLfw':
             filepath = mtLfwPath
-        elif data_name == 'acWebFace':
+        elif data_name == 'ACWebFace':
             filepath = ACWebPath
         elif data_name == 'ACLfw':
             filepath = ACLfwPath
         elif data_name == 'MulACLfw':
             filepath = MulACLfwPath
+        elif data_name == 'MulACmtLfw':
+            filepath = MulACmtLfwPath
         elif data_name == 'MulACLfwDf':
             filepath = MulACLfwDfPath
+        elif data_name == 'MulACmtWebFace':
+            filepath = MulACmtWebPath
+        else:
+            exit(-1)
         path_dir = os.listdir(filepath)
         print('data path:', filepath)
         self.dataset = []
@@ -55,7 +62,7 @@ class DataReader(Dataset):
                    ' ', pb.ETA(),
                    ' ', pb.FileTransferSpeed()]
         pgb = pb.ProgressBar(widgets=widgets,
-                             maxval=494414 if data_name == 'acWebFace' or data_name == 'mtWebFace' else 13233).start()
+                             maxval=494414 if 'WebFace' in data_name else 13233).start()
         if self.st == 'train':
             self.person = -1
             file = open('/dev/shm/cleaned_list.txt')
