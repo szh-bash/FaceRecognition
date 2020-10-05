@@ -8,7 +8,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 # from model.vggnet.vgg16 import Vgg16
-from model.resnet.resnet import resnet50
+from model.resnet.resnet import resnet50, resnet_face50
 from loss import ArcMarginProduct as ArcFace
 
 from config import learning_rate, batch_size, weight_decay, Total, modelSavePath, server
@@ -41,19 +41,19 @@ def tester(filepath):
     s = socket.socket()
     s.connect(ip_port)
     s.sendall(filepath.encode())
-    print('Test request sent!')
+    # print('Test request sent!')
     s.close()
 
 
 if __name__ == '__main__':
     # set config
-    data = DataReader('train', 'MulACmtWebFace')
+    data = DataReader('train', 'ACWebFace')
     slides = (data.len - 1) // batch_size + 1
     grads = {}
 
     # Some Args setting
     # net = Vgg16()
-    net = resnet50()
+    net = resnet_face50()
 
     device = torch.device("cuda:0")
     if torch.cuda.device_count() > 1:
@@ -62,12 +62,12 @@ if __name__ == '__main__':
         print("Let's use %d/%d GPUs!" % (len(devices_ids), torch.cuda.device_count()))
     net.to(device)
     data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
-    arcFace = ArcFace(2048, data.person).to(device)
+    arcFace = ArcFace(512, data.person).to(device)
     criterion = nn.CrossEntropyLoss().to(device)
     optimizer = optim.Adam([{'params': net.parameters()},
                             {'params': arcFace.parameters()}],
                            lr=learning_rate, weight_decay=weight_decay)
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[32000, 44000], gamma=0.1, last_epoch=-1)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[20000, 28000], gamma=0.1, last_epoch=-1)
     print(net.parameters())
     print(arcFace.parameters())
     if os.path.exists(modelSavePath+'.tar'):
@@ -131,12 +131,20 @@ if __name__ == '__main__':
             #     print('Abs Max Gradient of net_output:',
             #           get_max_gradient(grads['feat_grad'].gather(1, train_y.view(-1, 1))))
 
-            if iterations % 5000 == 0:
-                torch.save(net.state_dict(), modelSavePath+'_'+str(iterations)+'.pt')
-                print('Model saved to '+modelSavePath+'_'+str(iterations)+'.pt')
-            # if iterations % 1 == 0:
             pred = get_label(feat)
             acc = (pred == train_y).sum().float() / train_y.size(0) * 100
+            if iterations % 5000 == 0:
+                state = {'net': net.state_dict(),
+                         'arc': arcFace.state_dict(),
+                         'optimizer': optimizer.state_dict(),
+                         'scheduler': scheduler.state_dict(),
+                         'epoch': epoch,
+                         'iter': iterations,
+                         'loss': loss,
+                         'acc': acc}
+                torch.save(state, modelSavePath+'_'+str(iterations)+'.tar')
+                print('Model saved to '+modelSavePath+'_'+str(iterations)+'.tar')
+                tester(modelSavePath+'_'+str(iterations)+'.tar')
             print('epoch: %d/%d, iters: %d, lr: %.5f, '
                   'loss: %.5f, acc: %.5f, train_time: %.5f, data_time: %.5f' %
                   (epoch, Total, iterations, scheduler.get_lr()[0],

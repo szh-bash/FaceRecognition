@@ -11,7 +11,7 @@ from multiprocessing import Pool, Queue, Process, Lock, Value
 # from threading import Lock
 from collections import defaultdict
 sys.path.append('..')
-from config import webPath, mtWebPath, ACWebPath, MulACWebPath, MulACmtWebPath, \
+from config import webPath, mtWebPath, ACWebPath, MulACWebPath, MulACmtWebPath, MulACWebPath_112,\
                     lfwPath, mtLfwPath, lfwDfPath, ACLfwPath, MulACLfwPath, MulACLfwDfPath, MulACmtLfwPath
 
 
@@ -111,8 +111,8 @@ def rotate_landmarks(landmarks, eye_center, angle, row):
 
 
 def deal_face(img_path):
+    size = 112
     image = cv2.imread(img_path)
-
     face_landmarks_list = face_recognition.face_landmarks(image, model="large")
     if len(face_landmarks_list) == 0:
         return []
@@ -121,7 +121,8 @@ def deal_face(img_path):
     rotated_landmarks = rotate_landmarks(landmarks=face_landmarks_dict,
                                          eye_center=eye_center, angle=angle, row=image.shape[0])
     cropped_face, left, top = corp_face(image_array=aligned_face, landmarks=rotated_landmarks)
-    return cropped_face
+    normed_face = cv2.resize(cropped_face, (size, size))
+    return normed_face
 
 
 def worker(le, ri):
@@ -137,6 +138,7 @@ def worker(le, ri):
         # lock.release()
         face = deal_face(msg[0])
         if len(face) == 0:
+            failed.value += 1
             if md == 1:
                 face = cv2.imread(msg[0])
             else:
@@ -149,8 +151,9 @@ if __name__ == '__main__':
     num = 8
     lock = Lock()
     count = Value('i', 0)
-    length = 13233
-    # length = 494414
+    failed = Value('i', 0)
+    # length = 13233
+    length = 494414
 
     widgets = ['Dealing: ', pb.Percentage(),
                ' ', pb.Bar(marker='>', left='[', right=']', fill='='),
@@ -159,9 +162,9 @@ if __name__ == '__main__':
                ' ', pb.FileTransferSpeed()]
     pgb = pb.ProgressBar(widgets=widgets, maxval=length)
 
-    md = 1
-    origin_path = mtLfwPath
-    target_path = MulACmtLfwPath
+    md = 0
+    origin_path = webPath
+    target_path = MulACWebPath_112
     print(origin_path+' to '+target_path)
     path_dir = os.listdir(origin_path)
     if not os.path.exists(target_path):
@@ -182,11 +185,13 @@ if __name__ == '__main__':
 
     p = []
     for i in range(num-1):
-        p.append(Process(target=worker, args=(length//num*i, length//num*(i+1), md)))
-    p.append(Process(target=worker, args=(length//num*(num-1), length, md)))
+        p.append(Process(target=worker, args=(length//num*i, length//num*(i+1))))
+    p.append(Process(target=worker, args=(length//num*(num-1), length)))
     for i in range(num):
         p[i].start()
     for i in range(num):
         p[i].join()
     pgb.finish()
+    print('succeed: %d' % (count.value-failed.value))
+    print('failed: %d' % failed.value)
     print('MISSION COMPLETED!')

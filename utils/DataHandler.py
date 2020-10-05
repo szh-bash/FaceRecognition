@@ -6,10 +6,10 @@ import torchvision.transforms as trans
 
 _CH = 32
 _CW = 32
-W = 224
-H = 224
-MinS = 224
-MaxS = 256
+W = 112
+H = 112
+MinS = 112
+MaxS = 128
 
 
 class Augment:
@@ -53,8 +53,8 @@ class Augment:
         img = cv2.resize(img, (H, W))
         img = self.resize(img)
         # img = self.rotate(img)
-        img = self.crop(img)
         img = self.gaussian_blur(img)
+        img = self.crop(img)
         img = self.flip(img)
         img = np.transpose(img, [2, 0, 1])
         img = (img - 127.5) / 128.0

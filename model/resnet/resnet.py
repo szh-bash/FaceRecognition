@@ -163,7 +163,8 @@ class ResNetFace(nn.Module):
         self.inplanes = 64
         self.use_se = use_se
         super(ResNetFace, self).__init__()
-        self.conv1 = nn.Conv2d(1, 64, kernel_size=3, padding=1, bias=False)
+        # self.conv1 = nn.Conv2d(1, 64, kernel_size=3, padding=1, bias=False)
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=3, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
         self.prelu = nn.PReLU()
         self.maxpool = nn.MaxPool2d(kernel_size=2, stride=2)
@@ -173,7 +174,8 @@ class ResNetFace(nn.Module):
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
         self.bn4 = nn.BatchNorm2d(512)
         self.dropout = nn.Dropout()
-        self.fc5 = nn.Linear(512 * 8 * 8, 512)
+        # self.fc5 = nn.Linear(512 * 8 * 8, 512)
+        self.fc5 = nn.Linear(512 * 7 * 7, 512)
         self.bn5 = nn.BatchNorm1d(512)
 
         for m in self.modules():
@@ -203,20 +205,34 @@ class ResNetFace(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
+        # print(x.size())
         x = self.conv1(x)
+        # print(x.size())
         x = self.bn1(x)
+        # print(x.size())
         x = self.prelu(x)
+        # print(x.size())
         x = self.maxpool(x)
+        # print(x.size())
 
         x = self.layer1(x)
+        # print(x.size())
         x = self.layer2(x)
+        # print(x.size())
         x = self.layer3(x)
-        x = self.layer4(x)
+        # print(x.size())
+        x = self.layer4(x)  # 512*7*7
+        # print(x.size())
         x = self.bn4(x)
+        # print(x.size())
         x = self.dropout(x)
+        # print(x.size())
         x = x.view(x.size(0), -1)
+        # print(x.size())
         x = self.fc5(x)
+        # print(x.size())
         x = self.bn5(x)
+        # print(x.size())
 
         return x
 
@@ -348,4 +364,9 @@ def resnet152(pretrained=False, **kwargs):
 
 def resnet_face18(use_se=True, **kwargs):
     model = ResNetFace(IRBlock, [2, 2, 2, 2], use_se=use_se, **kwargs)
+    return model
+
+
+def resnet_face50(use_se=True, **kwargs):
+    model = ResNetFace(IRBlock, [3, 4, 6, 3], use_se=use_se, **kwargs)
     return model

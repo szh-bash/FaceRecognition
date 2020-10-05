@@ -8,7 +8,7 @@ import progressbar as pb
 
 sys.path.append("..")
 from init import DataReader
-from model.resnet.resnet import resnet50
+from model.resnet.resnet import resnet50, resnet_face50
 from utils.misc import write_feat, write_meta
 from torch.utils.data import DataLoader
 
@@ -42,7 +42,7 @@ def get(filepath, data):
 
     # load model
     device = torch.device('cuda:0')
-    model = resnet50().cuda()
+    model = resnet_face50().cuda()
     checkpoint = torch.load(filepath)
     model.load_state_dict({k.replace('module.', ''): v for k, v in checkpoint['net'].items()})
     model.eval()  # DropOut/BN
