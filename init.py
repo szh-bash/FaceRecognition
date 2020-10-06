@@ -5,7 +5,7 @@ import numpy as np
 from torch.utils.data import Dataset
 import progressbar as pb
 from utils.DataHandler import Augment, MinS, MaxS, W, H
-from config import lfwPath, lfwDfPath, webPath, mtWebPath, \
+from config import lfwPath, lfwDfPath, webPath, mtWebPath, MulACWebPath_112,\
     mtLfwPath, ACWebPath, ACLfwPath, MulACLfwPath, MulACmtLfwPath, MulACLfwDfPath, MulACmtWebPath
 # import utils.mtcnn_simple as mts
 # lfw: 5749, 13233
@@ -43,6 +43,8 @@ class DataReader(Dataset):
             filepath = MulACLfwDfPath
         elif data_name == 'MulACmtWebFace':
             filepath = MulACmtWebPath
+        elif data_name == 'MulACWebFace112':
+            filepath = MulACWebPath_112
         else:
             exit(-1)
         path_dir = os.listdir(filepath)

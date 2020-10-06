@@ -47,7 +47,7 @@ def tester(filepath):
 
 if __name__ == '__main__':
     # set config
-    data = DataReader('train', 'ACWebFace')
+    data = DataReader('train', 'MulACWebFace112')
     slides = (data.len - 1) // batch_size + 1
     grads = {}
 
@@ -67,7 +67,7 @@ if __name__ == '__main__':
     optimizer = optim.Adam([{'params': net.parameters()},
                             {'params': arcFace.parameters()}],
                            lr=learning_rate, weight_decay=weight_decay)
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[20000, 28000], gamma=0.1, last_epoch=-1)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[16000, 22000], gamma=0.1, last_epoch=-1)
     print(net.parameters())
     print(arcFace.parameters())
     if os.path.exists(modelSavePath+'.tar'):

@@ -16,11 +16,11 @@ MulACmtWebPath = '/dev/shm/Multi-Alined-Cropped-mtcnn-CASIA-WebFace'
 MulACWebPath_112 = '/dev/shm/Multi-Alined-Cropped-CASIA-WebFace-112'
 
 # train
-Total = 40
+Total = 30
 batch_size = 512
-learning_rate = 0.1
+learning_rate = 0.001
 weight_decay = 0.0005
-modelName = 'resnet_face50_ACWebFace_arcfaceSET'
+modelName = 'resnet_face50_ACWebFace112_sota'
 modelSavePath = '/data/shenzhonghai/FaceClustering/models/'+modelName
 # test
 modelPath = '/data/shenzhonghai/FaceClustering/models/'+modelName+'.tar'
