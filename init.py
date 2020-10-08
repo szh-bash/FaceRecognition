@@ -41,7 +41,7 @@ class DataReader(Dataset):
                    ' ', pb.ETA(),
                    ' ', pb.FileTransferSpeed()]
         pgb = pb.ProgressBar(widgets=widgets,
-                             maxval=494414 if 'WebFace' in data_name else 13233).start()
+                             maxval=494414 if 'Web' in data_name else 13233).start()
         if self.st == 'train':
             self.person = -1
             file = open('/dev/shm/cleaned_list.txt')

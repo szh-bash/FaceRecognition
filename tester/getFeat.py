@@ -42,8 +42,8 @@ def get(filepath, data):
 
     # load model
     device = torch.device('cuda:0')
-    # model = resnet_face50().cuda()
-    model = resnet50().cuda()
+    model = resnet_face50().cuda()
+    # model = resnet50().cuda()
     checkpoint = torch.load(filepath)
     model.load_state_dict({k.replace('module.', ''): v for k, v in checkpoint['net'].items()})
     model.eval()  # DropOut/BN

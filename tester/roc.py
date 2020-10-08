@@ -35,8 +35,6 @@ def get_img_pairs_list(**_store):
         res_dist.append(get_distance(names[0]+'/'+ids[0], names[flag]+'/'+ids[1], **_store))
         res_gt.append(flag ^ 1)
     file.close()
-    # print(dist[:5])
-    # print(dist[-5:])
     return total, res_dist, res_gt
 
 
@@ -79,6 +77,9 @@ def calc(filepath):
     print('@FAR = 0.02000: TAR = %.5f' % _true_ratio[58])
     print('EER: %.5f' % _true_ratio[np.array(eer).argmin()])
     print('AUC: %.5f' % roc)
+
+    # lfw-test
+
     return _test_acc, _test_total, _true_ratio
 
 

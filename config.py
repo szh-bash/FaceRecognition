@@ -19,18 +19,14 @@ dataPath = {
 'MegaWeb112': '/data/shenzhonghai/casia-112x112'
 }
 
-# train
+# train/test
 Total = 30
 batch_size = 512
 learning_rate = 0.001
 weight_decay = 0.0005
-modelName = 'resnet_face50_MegaWebFace112'
+modelName = 'resnet_face50_MegaWebFace112_base1'
 modelSavePath = '/data/shenzhonghai/FaceClustering/models/'+modelName
-# test
 modelPath = '/data/shenzhonghai/FaceClustering/models/'+modelName+'.tar'
-# featPath = '/data/shenzhonghai/lfw/lfwdf-wf-af05-lr1e3-feat-fc2-ep15/'
-# featPath = '/data/shenzhonghai/lfw/lfwDf-base_aug_DP05-feat-fc2-ep32/'
-# featPath = '/data/shenzhonghai/lfw/mtLfw-mtwfc-base-feat-fc2-35000/'
 dp = 0.00
 pairsTxtPath = '/data/shenzhonghai/lfw/pairs.txt'
 server = 2333

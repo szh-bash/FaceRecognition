@@ -39,10 +39,14 @@ def get_max_gradient(g):
 def tester(filepath):
     ip_port = ('127.0.0.1', server)
     s = socket.socket()
-    s.connect(ip_port)
-    s.sendall(filepath.encode())
-    # print('Test request sent!')
-    s.close()
+    try:
+        s.connect(ip_port)
+    except:
+        print('Test Server Down...')
+    else:
+        s.sendall(filepath.encode())
+        # print('Test request sent!')
+        s.close()
 
 
 if __name__ == '__main__':
@@ -53,8 +57,8 @@ if __name__ == '__main__':
 
     # Some Args setting
     # net = Vgg16()
-    # net = resnet_face50()
-    net = resnet50()
+    net = resnet_face50()
+    # net = resnet50()
 
     device = torch.device("cuda:0")
     if torch.cuda.device_count() > 1:
@@ -68,7 +72,7 @@ if __name__ == '__main__':
     optimizer = optim.Adam([{'params': net.parameters()},
                             {'params': arcFace.parameters()}],
                            lr=learning_rate, weight_decay=weight_decay)
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[16000, 22000], gamma=0.1, last_epoch=-1)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[20000, 25000], gamma=0.1, last_epoch=-1)
     print(net.parameters())
     print(arcFace.parameters())
     if os.path.exists(modelSavePath+'.tar'):
