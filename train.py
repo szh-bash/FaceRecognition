@@ -47,13 +47,14 @@ def tester(filepath):
 
 if __name__ == '__main__':
     # set config
-    data = DataReader('train', 'MulACWebFace112')
+    data = DataReader('train', 'MegaWeb112')
     slides = (data.len - 1) // batch_size + 1
     grads = {}
 
     # Some Args setting
     # net = Vgg16()
-    net = resnet_face50()
+    # net = resnet_face50()
+    net = resnet50()
 
     device = torch.device("cuda:0")
     if torch.cuda.device_count() > 1:

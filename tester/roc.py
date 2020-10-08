@@ -106,7 +106,7 @@ def test_server():
 
 
 if __name__ == '__main__':
-    data = DataReader('test', 'MulACLfwDf')
+    data = DataReader('test', 'MegaLfw112')
     length = 10000
     thresholds_left, thresholds_right = -0.0, 1.0
     thresholds = np.linspace(thresholds_left, thresholds_right, length)

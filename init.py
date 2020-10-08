@@ -5,8 +5,7 @@ import numpy as np
 from torch.utils.data import Dataset
 import progressbar as pb
 from utils.DataHandler import Augment, MinS, MaxS, W, H
-from config import lfwPath, lfwDfPath, webPath, mtWebPath, MulACWebPath_112,\
-    mtLfwPath, ACWebPath, ACLfwPath, MulACLfwPath, MulACmtLfwPath, MulACLfwDfPath, MulACmtWebPath
+from config import dataPath
 # import utils.mtcnn_simple as mts
 # lfw: 5749, 13233
 # webface: 10575, 494414
@@ -21,31 +20,10 @@ class DataReader(Dataset):
         self.st = st
         self.data_name = data_name
         filepath = None
-        if data_name == 'lfw':
-            filepath = lfwPath
-        elif data_name == 'lfwDf':
-            filepath = lfwDfPath
-        elif data_name == 'WebFace':
-            filepath = webPath
-        elif data_name == 'mtWebFace':
-            filepath = mtWebPath
-        elif data_name == 'mtLfw':
-            filepath = mtLfwPath
-        elif data_name == 'ACWebFace':
-            filepath = ACWebPath
-        elif data_name == 'ACLfw':
-            filepath = ACLfwPath
-        elif data_name == 'MulACLfw':
-            filepath = MulACLfwPath
-        elif data_name == 'MulACmtLfw':
-            filepath = MulACmtLfwPath
-        elif data_name == 'MulACLfwDf':
-            filepath = MulACLfwDfPath
-        elif data_name == 'MulACmtWebFace':
-            filepath = MulACmtWebPath
-        elif data_name == 'MulACWebFace112':
-            filepath = MulACWebPath_112
+        if data_name in dataPath:
+            filepath = dataPath[data_name]
         else:
+            print('Data Type 404')
             exit(-1)
         path_dir = os.listdir(filepath)
         print('data path:', filepath)
@@ -57,7 +35,6 @@ class DataReader(Dataset):
         self.idx = []
         self.feat = []
         self.len = 0
-        fail = 0
         widgets = ['Data Loading: ', pb.Percentage(),
                    ' ', pb.Bar(marker='>', left='[', right=']', fill='='),
                    ' ', pb.Timer(),
@@ -133,17 +110,3 @@ class DataReader(Dataset):
 
     def __len__(self):
         return self.len
-
-
-if __name__ == '__main__':
-    # img = np.array(cv2.imread(mtWebPath+'/0000102/038.jpg'), dtype=float)
-    # y = 224
-    # s = 320
-    # x = (s - y) // 2
-    # img = cv2.resize(img, (s,s))
-    # img = img[x:x+y, x:x+y, :]
-    # img = img[:, ::-1, :]
-    # cv2.imwrite('rcf.jpg', img)
-    # print(img.shape)
-    # DataReader('resize', 'mtWebFace')
-    pass

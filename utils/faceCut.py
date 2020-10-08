@@ -131,14 +131,13 @@ def worker(le, ri):
     global pgb
     for j in range(le, ri):
         msg = q[j]
-        # lock.acquire()
         with lock:
             pgb.update(count.value)
             count.value += 1
-        # lock.release()
         face = deal_face(msg[0])
         if len(face) == 0:
-            failed.value += 1
+            with lock:
+                failed.value += 1
             if md == 1:
                 face = cv2.imread(msg[0])
             else:
