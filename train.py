@@ -7,7 +7,6 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-# from model.vggnet.vgg16 import Vgg16
 from model.resnet.resnet import resnet50, resnet_face50
 from loss import ArcMarginProduct as ArcFace
 
