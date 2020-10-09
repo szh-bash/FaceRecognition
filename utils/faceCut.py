@@ -11,8 +11,19 @@ from multiprocessing import Pool, Queue, Process, Lock, Value
 # from threading import Lock
 from collections import defaultdict
 sys.path.append('..')
-from config import webPath, mtWebPath, ACWebPath, MulACWebPath, MulACmtWebPath, MulACWebPath_112,\
-                    lfwPath, mtLfwPath, lfwDfPath, ACLfwPath, MulACLfwPath, MulACLfwDfPath, MulACmtLfwPath
+from config import dataPath
+
+
+point_96 = [[30.2946, 51.6963],  # 112x96的目标点
+               [65.5318, 51.6963],
+               [48.0252, 71.7366],
+               [33.5493, 92.3655],
+               [62.7299, 92.3655]]
+point_112 = [[30.2946+8.0000, 51.6963],  # 112x112的目标点
+               [65.5318+8.0000, 51.6963],
+               [48.0252+8.0000, 71.7366],
+               [33.5493+8.0000, 92.3655],
+               [62.7299+8.0000, 92.3655]]
 
 
 def align_face(image_array, landmarks):
@@ -110,19 +121,58 @@ def rotate_landmarks(landmarks, eye_center, angle, row):
     return rotated_landmarks
 
 
+def transformation_from_points(points1, points2):
+    points1 = points1.astype(np.float64)
+    points2 = points2.astype(np.float64)
+    c1 = np.mean(points1, axis=0)
+    c2 = np.mean(points2, axis=0)
+    points1 -= c1
+    points2 -= c2
+    s1 = np.std(points1)
+    s2 = np.std(points2)
+    points1 /= s1
+    points2 /= s2
+    U, S, Vt = np.linalg.svd(points1.T * points2)
+    R = (U * Vt).T
+    return np.vstack([np.hstack(((s2 / s1) * R, c2.T - (s2 / s1) * R * c1.T)), np.matrix([0., 0., 1.])])
+
+
+def warp_im(img_im, orgi_landmarks, tar_landmarks):
+    pts1 = np.float64(np.matrix([[point[0], point[1]] for point in orgi_landmarks]))
+    pts2 = np.float64(np.matrix([[point[0], point[1]] for point in tar_landmarks]))
+    M = transformation_from_points(pts1, pts2)
+    dst = cv2.warpAffine(img_im, M[:2], (img_im.shape[1], img_im.shape[0]))
+    return dst
+
+
+def key_point(landmarks):
+    left_eye = np.array(landmarks['left_eye'])
+    left_eye = left_eye.sum(axis=0) / left_eye.shape[0]
+    right_eye = np.array(landmarks['right_eye'])
+    right_eye = right_eye.sum(axis=0) / right_eye.shape[0]
+    nose_tip = np.array(landmarks['nose_tip'])
+    nose_tip = nose_tip.sum(axis=0) / nose_tip.shape[0]
+    left_lip0 = np.array(landmarks['top_lip'])[np.array(landmarks['top_lip']).argmin(axis=0)[0]]
+    left_lip1 = np.array(landmarks['bottom_lip'])[np.array(landmarks['bottom_lip']).argmin(axis=0)[0]]
+    right_lip0 = np.array(landmarks['top_lip'])[np.array(landmarks['top_lip']).argmax(axis=0)[0]]
+    right_lip1 = np.array(landmarks['bottom_lip'])[np.array(landmarks['bottom_lip']).argmax(axis=0)[0]]
+    res = np.array([left_eye, right_eye, nose_tip, ((left_lip0 + left_lip1) / 2), ((right_lip0 + right_lip1) / 2)])
+    return res
+
+
 def deal_face(img_path):
-    size = 112
     image = cv2.imread(img_path)
     face_landmarks_list = face_recognition.face_landmarks(image, model="large")
     if len(face_landmarks_list) == 0:
         return []
     face_landmarks_dict = face_landmarks_list[0]
-    aligned_face, eye_center, angle = align_face(image_array=image, landmarks=face_landmarks_dict)
-    rotated_landmarks = rotate_landmarks(landmarks=face_landmarks_dict,
-                                         eye_center=eye_center, angle=angle, row=image.shape[0])
-    cropped_face, left, top = corp_face(image_array=aligned_face, landmarks=rotated_landmarks)
-    normed_face = cv2.resize(cropped_face, (size, size))
-    return normed_face
+    # aligned_face, eye_center, angle = align_face(image_array=image, landmarks=face_landmarks_dict)
+    # rotated_landmarks = rotate_landmarks(landmarks=face_landmarks_dict,
+    #                                      eye_center=eye_center, angle=angle, row=image.shape[0])
+    # cropped_face, left, top = corp_face(image_array=aligned_face, landmarks=rotated_landmarks)
+    # normed_face = cv2.resize(cropped_face, (112, 112))
+    warped_face = warp_im(image, key_point(face_landmarks_dict), point_112)[:112, :112, :]
+    return warped_face
 
 
 def worker(le, ri):
@@ -151,8 +201,13 @@ if __name__ == '__main__':
     lock = Lock()
     count = Value('i', 0)
     failed = Value('i', 0)
-    # length = 13233
-    length = 494414
+    md = 1
+    origin_path = dataPath['LfwDf']
+    target_path = dataPath['WarpLfwDf112Full']
+    if 'lfw' in origin_path:
+        length = 13233
+    else:
+        length = 494414
 
     widgets = ['Dealing: ', pb.Percentage(),
                ' ', pb.Bar(marker='>', left='[', right=']', fill='='),
@@ -161,9 +216,6 @@ if __name__ == '__main__':
                ' ', pb.FileTransferSpeed()]
     pgb = pb.ProgressBar(widgets=widgets, maxval=length)
 
-    md = 0
-    origin_path = webPath
-    target_path = MulACWebPath_112
     print(origin_path+' to '+target_path)
     path_dir = os.listdir(origin_path)
     if not os.path.exists(target_path):
