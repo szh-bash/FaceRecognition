@@ -4,6 +4,7 @@
 *.ptf
 *.jpg
 *.gif
+*.png
 /utils/.ipynb*/
 
 # Byte-compiled / optimized / DLL files
