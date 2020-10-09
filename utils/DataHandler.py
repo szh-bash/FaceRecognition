@@ -18,9 +18,9 @@ class Augment:
     def cutout(self, image):
         img = image.copy()
         if self.rng.rand() < 0.5:
-            y = int(self.rng.rand() * H) + 1
-            x = int(self.rng.rand() * W) + 1
-            img[y:min(H, y+_CH), x:min(W, x+_CW), :] = 255.
+            y = int(self.rng.rand() * H)
+            x = int(self.rng.rand() * W)
+            img[y:min(H, y+_CH), x:min(W, x+_CW), :] = 0
         return img
 
     def resize(self, image):
@@ -58,6 +58,7 @@ class Augment:
     def run(self, image, label):
         img = image.copy()
         img = cv2.resize(img, (H, W))
+        img = self.cutout(img)
         img = self.resize(img)
         # img = self.rotate(img)
         img = self.gaussian_blur(img)
