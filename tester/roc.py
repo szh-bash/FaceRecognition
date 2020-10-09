@@ -70,8 +70,8 @@ def global_calc(_index, _ground_truth, __test_total):
 def cross_acc(_dist, _ground_truth):
     res = 0
     for i in range(10):
-        p = _dist[i*600:(i+1)*600]
-        gt = _ground_truth[i*600:(i+1)*600]
+        p = _dist[i*600:(i+1)*600].copy()
+        gt = _ground_truth[i*600:(i+1)*600].copy()
         _index = np.argsort(p)[::-1]
         pos = 0
         neg = 0

@@ -15,41 +15,48 @@ MaxS = 128
 class Augment:
     rng = np.random
 
-    def cutout(self, img):
+    def cutout(self, image):
+        img = image.copy()
         if self.rng.rand() < 0.5:
             y = int(self.rng.rand() * H) + 1
             x = int(self.rng.rand() * W) + 1
             img[y:min(H, y+_CH), x:min(W, x+_CW), :] = 255.
         return img
 
-    def resize(self, img):
+    def resize(self, image):
+        img = image.copy()
         new_size = self.rng.randint(MinS, MaxS+1)
         img = cv2.resize(img, (new_size, new_size))
         return img
 
-    def crop(self, img):
+    def crop(self, image):
+        img = image.copy()
         dh = img.shape[1] - H
         dw = img.shape[0] - W
         y = int(self.rng.rand()*dh)
         x = int(self.rng.rand()*dw)
         return img[y:y+H, x:x+W, :]
 
-    def rotate(self, img):
+    def rotate(self, image):
+        img = image.copy()
         if self.rng.rand() < 0.3:
             img = trans.RandomRotation(img, 15)  # -15 -> +15
         return img
 
-    def flip(self, img):
+    def flip(self, image):
+        img = image.copy()
         if self.rng.rand() < 0.5:
             img = img[:, ::-1, :]
         return img
 
-    def gaussian_blur(self, img):
+    def gaussian_blur(self, image):
+        img = image.copy()
         if self.rng.rand() < 0.3:
             img = cv2.blur(img, (5, 5))
         return img
 
-    def run(self, img, label):
+    def run(self, image, label):
+        img = image.copy()
         img = cv2.resize(img, (H, W))
         img = self.resize(img)
         # img = self.rotate(img)

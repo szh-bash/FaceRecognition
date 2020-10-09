@@ -92,15 +92,15 @@ class DataReader(Dataset):
 
     def __getitem__(self, index):
         if self.st == 'train':
-            image = np.array(cv2.imread(self.name[index]), dtype=float)
+            image = np.array(cv2.imread(self.name[index]), dtype=float).copy()
             image, label = aug.run(image, self.y[index])
             image = torch.from_numpy(image).float()
             return image, label
         elif self.st == 'test':
             size = (MinS + MaxS) // 2
             idx = (size - W) // 2
-            img = np.array(self.dataset[index], dtype=float)
-            image = cv2.resize(img, (size, size))
+            image = np.array(self.dataset[index], dtype=float).copy()
+            image = cv2.resize(image, (size, size))
             image = image[idx:idx + H, idx:idx + W, :]
             image = np.transpose(image, [2, 0, 1])
             image = torch.from_numpy((image - 127.5) / 128).float()
