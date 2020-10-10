@@ -121,6 +121,21 @@ def rotate_landmarks(landmarks, eye_center, angle, row):
     return rotated_landmarks
 
 
+def transfer_landmark(landmarks, left, top):
+    """transfer landmarks to fit the cropped face
+    :param landmarks: dict of landmarks for facial parts as keys and tuple of coordinates as values
+    :param left: left coordinates of cropping
+    :param top: top coordinates of cropping
+    :return: transferred_landmarks with the same structure with landmarks, but different values
+    """
+    transferred_landmarks = defaultdict(list)
+    for facial_feature in landmarks.keys():
+        for landmark in landmarks[facial_feature]:
+            transferred_landmark = (landmark[0] - left, landmark[1] - top)
+            transferred_landmarks[facial_feature].append(transferred_landmark)
+    return transferred_landmarks
+
+
 def transformation_from_points(points1, points2):
     points1 = points1.astype(np.float64)
     points2 = points2.astype(np.float64)
@@ -166,12 +181,12 @@ def deal_face(img_path):
     if len(face_landmarks_list) == 0:
         return []
     face_landmarks_dict = face_landmarks_list[0]
-    # aligned_face, eye_center, angle = align_face(image_array=image, landmarks=face_landmarks_dict)
-    # rotated_landmarks = rotate_landmarks(landmarks=face_landmarks_dict,
-    #                                      eye_center=eye_center, angle=angle, row=image.shape[0])
-    # cropped_face, left, top = corp_face(image_array=aligned_face, landmarks=rotated_landmarks)
-    # normed_face = cv2.resize(cropped_face, (112, 112))
-    warped_face = warp_im(image, key_point(face_landmarks_dict), point_112)[:112, :112, :]
+    aligned_face, eye_center, angle = align_face(image_array=image, landmarks=face_landmarks_dict)
+    rotated_landmarks = rotate_landmarks(landmarks=face_landmarks_dict,
+                                         eye_center=eye_center, angle=angle, row=image.shape[0])
+    cropped_face, left, top = corp_face(image_array=aligned_face, landmarks=rotated_landmarks)
+    transferred_landmarks = transfer_landmark(landmarks=rotated_landmarks, left=left, top=top)
+    warped_face = warp_im(cropped_face, key_point(transferred_landmarks), point_112)[:112, :112, :].copy()
     return warped_face
 
 
@@ -201,12 +216,13 @@ if __name__ == '__main__':
     lock = Lock()
     count = Value('i', 0)
     failed = Value('i', 0)
-    md = 1
     origin_path = dataPath['LfwDf']
-    target_path = dataPath['WarpLfwDf112Full']
+    target_path = dataPath['WarpLfwDf112']
     if 'lfw' in origin_path:
+        md = 1
         length = 13233
     else:
+        md = 0
         length = 494414
 
     widgets = ['Dealing: ', pb.Percentage(),

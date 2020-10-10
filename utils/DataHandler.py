@@ -15,6 +15,10 @@ MaxS = 128
 class Augment:
     rng = np.random
 
+    def mixup(self, image):
+        img = image.copy()
+        return img
+
     def cutout(self, image):
         img = image.copy()
         if self.rng.rand() < 0.5:
@@ -58,7 +62,7 @@ class Augment:
     def run(self, image, label):
         img = image.copy()
         img = cv2.resize(img, (H, W))
-        img = self.cutout(img)
+        # img = self.cutout(img)
         img = self.resize(img)
         # img = self.rotate(img)
         img = self.gaussian_blur(img)
