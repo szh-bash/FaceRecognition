@@ -185,9 +185,10 @@ def deal_face(img_path):
     rotated_landmarks = rotate_landmarks(landmarks=face_landmarks_dict,
                                          eye_center=eye_center, angle=angle, row=image.shape[0])
     cropped_face, left, top = corp_face(image_array=aligned_face, landmarks=rotated_landmarks)
-    transferred_landmarks = transfer_landmark(landmarks=rotated_landmarks, left=left, top=top)
-    warped_face = warp_im(cropped_face, key_point(transferred_landmarks), point_112)[:112, :112, :].copy()
-    return warped_face
+    # transferred_landmarks = transfer_landmark(landmarks=rotated_landmarks, left=left, top=top)
+    # warped_face = warp_im(cropped_face, key_point(transferred_landmarks), point_112)[:112, :112, :].copy()
+    normed_face = cv2.resize(cropped_face, (112, 112))
+    return normed_face
 
 
 def worker(le, ri):
@@ -207,7 +208,7 @@ def worker(le, ri):
                 face = cv2.imread(msg[0])
             else:
                 continue
-        cv2.imwrite(msg[1], face)
+        cv2.imwrite(msg[1], face, [int(cv2.IMWRITE_JPEG_QUALITY), 100])
 
 
 if __name__ == '__main__':
@@ -216,8 +217,8 @@ if __name__ == '__main__':
     lock = Lock()
     count = Value('i', 0)
     failed = Value('i', 0)
-    origin_path = dataPath['LfwDf']
-    target_path = dataPath['WarpLfwDf112']
+    origin_path = dataPath['Web']
+    target_path = dataPath['MulACWeb112P']
     if 'lfw' in origin_path:
         md = 1
         length = 13233

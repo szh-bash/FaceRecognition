@@ -50,7 +50,7 @@ def tester(filepath):
 
 if __name__ == '__main__':
     # set config
-    data = DataReader('train', 'MegaWeb112')
+    data = DataReader('train', 'MulACWeb112P')
     slides = (data.len - 1) // batch_size + 1
     grads = {}
 
