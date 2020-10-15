@@ -1,1 +1,1 @@
-CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7,8,9" python -u train.py | tee /data/shenzhonghai/FaceClustering/logs/train_log_resnet_face50_MulACWeb112P_base2.log
+CUDA_VISIBLE_DEVICES="4,5,7,8" python -u train.py | tee /data/shenzhonghai/FaceClustering/logs/train_log_resnet_face50_MegaWeb112_base5.log
