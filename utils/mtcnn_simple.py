@@ -12,12 +12,13 @@ def run(src, dst):
     image = cv2.cvtColor(cv2.imread(src), cv2.COLOR_BGR2RGB)
     result = detector.detect_faces(image)
     if len(result) == 0:
-        cv2.imwrite(dst, cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
+        # cv2.imwrite(dst, cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
         return -1
 
     # Result is an array with all the bounding boxes detected. We know that for 'ivan.jpg' there is only one.
     # bounding_box = result[0]['box']
     keypoints = result[0]['keypoints']
+    print(keypoints)
 
     def warp_affine(image, points, scale=1.0):
         eye_center = ((points[0][0] + points[1][0]) / 2, (points[0][1] + points[1][1]) / 2)
@@ -45,11 +46,11 @@ def run(src, dst):
     # cv2.circle(image,(keypoints['nose']), 2, (0,155,255), 2)
     # cv2.circle(image,(keypoints['mouth_left']), 2, (0,155,255), 2)
     # cv2.circle(image,(keypoints['mouth_right']), 2, (0,155,255), 2)
-    cv2.imwrite(dst, cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
+    # cv2.imwrite(dst, cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
     return 0
 
 
-# run('/dev/shm/CASIA-WebFace/0000045/011.jpg', 'test.jpg')
+run('/dev/shm/CASIA-WebFace/0000045/005.jpg', 'test.jpg')
 
 
 # _, points = align.detect_face.detect_face(img, minsize, pnet, rnet, onet, threshold, factor)

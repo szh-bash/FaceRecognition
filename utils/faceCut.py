@@ -5,11 +5,11 @@ import math
 import time
 import numpy as np
 from PIL import Image
-import face_recognition
+from mtcnn import MTCNN
+# import face_recognition
 import progressbar as pb
-from multiprocessing import Pool, Queue, Process, Lock, Value
-# from threading import Lock
-from collections import defaultdict
+from multiprocessing import Process, Lock, Value
+# from collections import defaultdict
 sys.path.append('..')
 from config import dataPath
 
@@ -191,16 +191,37 @@ def deal_face(img_path):
     return normed_face
 
 
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
+
+def mtcnn_align(img_path, det):
+    img = cv2.imread(img_path)
+    result = det.detect_faces(img)
+    if len(result) == 0:
+        return []
+    keypoints = result[0]["keypoints"]
+    origin_landmarks = [keypoints[x] for x in keypoints]
+    img = warp_im(img, origin_landmarks, point_112)[:112, :112, :].copy()
+    return img
+
+
 def worker(le, ri):
     global lock
     global count
     global pgb
+    detector = MTCNN()
     for j in range(le, ri):
         msg = q[j]
         with lock:
             pgb.update(count.value)
             count.value += 1
-        face = deal_face(msg[0])
+        if mode == 'face_recognition':
+            face = deal_face(msg[0])
+        elif mode == 'mtcnn':
+            face = mtcnn_align(msg[0], detector)
+        else:
+            print('align method 404')
+            exit(-1)
         if len(face) == 0:
             with lock:
                 failed.value += 1
@@ -213,12 +234,13 @@ def worker(le, ri):
 
 if __name__ == '__main__':
     q = []
-    num = 8
+    num = 16
     lock = Lock()
     count = Value('i', 0)
     failed = Value('i', 0)
+    mode = 'mtcnn'
     origin_path = dataPath['Web']
-    target_path = dataPath['MulACWeb112P']
+    target_path = dataPath['MTWeb112P']
     if 'lfw' in origin_path:
         md = 1
         length = 13233
@@ -234,6 +256,7 @@ if __name__ == '__main__':
     pgb = pb.ProgressBar(widgets=widgets, maxval=length)
 
     print(origin_path+' to '+target_path)
+    print('Align mode: %s' % mode)
     path_dir = os.listdir(origin_path)
     if not os.path.exists(target_path):
         os.mkdir(target_path)
