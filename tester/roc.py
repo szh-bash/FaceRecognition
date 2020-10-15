@@ -119,12 +119,12 @@ def calc(filepath):
 
 
 def link_handler(link):
-    print(time.strftime("%Y-%m-%d %H:%M:%S Test server activated....", time.localtime()))
     filepath = link.recv(1024).decode()
     if filepath == 'exit':
         print("Train End....")
         return True
-    print(filepath)
+    print(time.strftime("%Y-%m-%d %H:%M:%S Test server activated....", time.localtime()))
+    print("Model path: %s", filepath)
     calc(filepath)
     link.close()
     return False

@@ -35,7 +35,10 @@ def get_max_gradient(g):
         return pm
 
 
-def tester(filepath):
+def save_test(status, filepath):
+    if status is not None:
+        torch.save(status, filepath)
+        print('Model saved to '+filepath)
     ip_port = ('127.0.0.1', server)
     s = socket.socket()
     try:
@@ -55,9 +58,7 @@ if __name__ == '__main__':
     grads = {}
 
     # Some Args setting
-    # net = Vgg16()
     net = resnet_face50()
-    # net = resnet50()
 
     device = torch.device("cuda:0")
     if torch.cuda.device_count() > 1:
@@ -146,9 +147,7 @@ if __name__ == '__main__':
                          'iter': iterations,
                          'loss': loss,
                          'acc': acc}
-                torch.save(state, modelSavePath+'_'+str(iterations)+'.tar')
-                print('Model saved to '+modelSavePath+'_'+str(iterations)+'.tar')
-                tester(modelSavePath+'_'+str(iterations)+'.tar')
+                save_test(state, modelSavePath+'_'+str(iterations)+'.tar')
             print('epoch: %d/%d, iters: %d, lr: %.5f, '
                   'loss: %.5f, acc: %.5f, train_time: %.5f, data_time: %.5f' %
                   (epoch, Total, iterations, scheduler.get_lr()[0],
@@ -170,9 +169,7 @@ if __name__ == '__main__':
                  'iter': iterations,
                  'loss': loss_bc,
                  'acc': acc_bc}
-        torch.save(state, modelSavePath+'.tar')
-        print('Model saved to %s' % (modelSavePath+'.tar'))
-        tester(modelSavePath+'.tar')
+        save_test(state, modelSavePath+'.tar')
 
-    tester('exit')
+    save_test(None, 'exit')
     print('fydnb!')
