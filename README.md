@@ -1,2 +1,2 @@
-# FaceClustering
- 毕业设计
+# FaceRecognition
+ 人脸识别实例
