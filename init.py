@@ -80,7 +80,7 @@ class DataReader(Dataset):
                     tmp += 1
                 self.person += 1
         pgb.finish()
-        print(self.st)
+        print('Data mode: '+self.st)
         if self.st == 'feat':
             self.feat = np.array(self.feat, dtype=float)
         self.label = np.array(self.label)

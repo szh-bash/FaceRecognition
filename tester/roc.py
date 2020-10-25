@@ -51,19 +51,20 @@ def global_calc(_index, _ground_truth, __test_total):
     pos = 0
     neg = 0
     _max_test_acc = 0
-    __true_ratio = []
+    __true_ratio = [0]
     for idx in _index:
         if _ground_truth[idx]:
             pos += 1
-            if len(__true_ratio) > 0:
-                __true_ratio[-1] += 1 / __test_total * 2
+            # if len(__true_ratio) > 0:
+            __true_ratio[-1] += 1 / __test_total * 2
         else:
             neg += 1
-            if len(__true_ratio) > 0:
-                _roc += pos * pow(1 / __test_total * 2, 2)
+            # if len(__true_ratio) > 0:
+            _roc += pos * pow(1 / __test_total * 2, 2)
             __true_ratio.append(pos / __test_total * 2)
         _max_test_acc = max(_max_test_acc, (pos+__test_total//2-neg)/__test_total)
-    __true_ratio[-1] = 1.0
+    print(__true_ratio[-1])
+    # __true_ratio[-1] = 1.0
     return __true_ratio, _max_test_acc*100, _roc
 
 
@@ -104,12 +105,12 @@ def calc(filepath):
 
     # Roc
     _true_ratio, max_test_acc, roc = global_calc(index, ground_truth, _test_total)
-    eer = np.abs(1 - np.array(_true_ratio) - np.linspace(0, 1.0, (_test_total // 2)))
+    eer = np.abs(1 - np.array(_true_ratio) - np.linspace(0, 1.0, len(_true_ratio)))
     print('Global Test Accuracy: %.3f ' % max_test_acc)
     print('Cross-validation Test Accuracy: %.3f' % _cross_validation)
-    print('@FAR = 0.00100: TAR = %.5f' % _true_ratio[2])
-    print('@FAR = 0.01000: TAR = %.5f' % _true_ratio[29])
-    print('@FAR = 0.02000: TAR = %.5f' % _true_ratio[58])
+    print('@FAR = 0.00000: TAR = %.5f' % _true_ratio[0])
+    print('@FAR = 0.00100: TAR = %.5f' % _true_ratio[3])
+    print('@FAR = 0.01000: TAR = %.5f' % _true_ratio[30])
     print('EER: %.5f' % _true_ratio[np.array(eer).argmin()])
     print('AUC: %.5f' % roc)
 
@@ -146,14 +147,14 @@ if __name__ == '__main__':
     length = 10000
     thresholds_left, thresholds_right = -0.0, 1.0
     thresholds = np.linspace(thresholds_left, thresholds_right, length)
-    test_server()
+    # test_server()
     test_acc, test_total, true_ratio = calc(modelPath)
 
     # plotting test_acc
     fig, ax1 = plt.subplots()
     ax2 = ax1.twinx()
     ax1.plot(thresholds, test_acc, label='test_acc', color='b')
-    ax2.plot(np.linspace(thresholds_left, thresholds_right, test_total//2), true_ratio, label='roc', color='r')
+    ax2.plot(np.linspace(thresholds_left, thresholds_right, len(true_ratio)), true_ratio, label='roc', color='r')
     ax1.set_xlim(thresholds_left, thresholds_right)
     ax1.set_ylim(45, 100)
     ax2.set_ylim(0., 1.)
