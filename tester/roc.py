@@ -124,7 +124,7 @@ def link_handler(link):
         print("Train End....")
         return True
     print(time.strftime("%Y-%m-%d %H:%M:%S Test server activated....", time.localtime()))
-    print("Model path: %s", filepath)
+    print("Model path: " + filepath)
     calc(filepath)
     link.close()
     return False

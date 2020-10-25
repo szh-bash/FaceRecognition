@@ -239,8 +239,8 @@ if __name__ == '__main__':
     count = Value('i', 0)
     failed = Value('i', 0)
     mode = 'mtcnn'
-    origin_path = dataPath['Web']
-    target_path = dataPath['MTWeb112P']
+    origin_path = dataPath['LfwDf']
+    target_path = dataPath['MTLfwDf112P']
     if 'lfw' in origin_path:
         md = 1
         length = 13233

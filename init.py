@@ -44,7 +44,7 @@ class DataReader(Dataset):
                              maxval=494414 if 'Web' in data_name else 13233).start()
         if self.st == 'train':
             self.person = -1
-            file = open('/dev/shm/cleaned_list.txt')
+            file = open('/data/shenzhonghai/WebFace-cleaned_list.txt')
             for st in file.readlines():
                 st = st.split(' ')
                 if int(st[1]) > self.person:

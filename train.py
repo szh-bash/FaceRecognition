@@ -36,7 +36,7 @@ def get_max_gradient(g):
 
 
 def save_test(status, filepath):
-    if status is not None:
+    if status != None:
         torch.save(status, filepath)
         print('Model saved to '+filepath)
     ip_port = ('127.0.0.1', server)
@@ -138,16 +138,16 @@ if __name__ == '__main__':
 
             pred = get_label(feat)
             acc = (pred == train_y).sum().float() / train_y.size(0) * 100
-            if iterations % 5000 == 0:
-                state = {'net': net.state_dict(),
-                         'arc': arcFace.state_dict(),
-                         'optimizer': optimizer.state_dict(),
-                         'scheduler': scheduler.state_dict(),
-                         'epoch': epoch,
-                         'iter': iterations,
-                         'loss': loss,
-                         'acc': acc}
-                save_test(state, modelSavePath+'_'+str(iterations)+'.tar')
+            # if iterations % 5000 == 0:
+            #     state = {'net': net.state_dict(),
+            #              'arc': arcFace.state_dict(),
+            #              'optimizer': optimizer.state_dict(),
+            #              'scheduler': scheduler.state_dict(),
+            #              'epoch': epoch,
+            #              'iter': iterations,
+            #              'loss': loss,
+            #              'acc': acc}
+            #     save_test(state, modelSavePath+'_'+str(iterations)+'.tar')
             print('epoch: %d/%d, iters: %d, lr: %.5f, '
                   'loss: %.5f, acc: %.5f, train_time: %.5f, data_time: %.5f' %
                   (epoch, Total, iterations, scheduler.get_lr()[0],
