@@ -1,2 +1,7 @@
-# FaceRecognition
- 人脸识别实例
+# FaceClustering
+
+ 人脸检测对齐
+ 
+ 人脸特征提取
+ 
+ 人脸聚类
