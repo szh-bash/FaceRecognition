@@ -147,7 +147,7 @@ if __name__ == '__main__':
     length = 10000
     thresholds_left, thresholds_right = -0.0, 1.0
     thresholds = np.linspace(thresholds_left, thresholds_right, length)
-    # test_server()
+    test_server()
     test_acc, test_total, true_ratio = calc(modelPath)
 
     # plotting test_acc
