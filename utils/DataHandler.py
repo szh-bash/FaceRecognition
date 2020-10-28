@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 # import torch
 import torchvision.transforms as trans
+from config import batch_size
 
 
 _CH = 32
@@ -14,10 +15,14 @@ MaxS = 128
 
 class Augment:
     rng = np.random
+    rng2 = np.random
 
-    def mixup(self, image):
-        img = image.copy()
-        return img
+    def mixup(self, image, label, image_sec, label_sec, alpha=0.05):
+        lam = self.rng2.beta(alpha, alpha)
+        # print(lam)  # same in diff gpu
+        img = image * lam + image_sec * (1-lam)
+        lb = label * lam + label_sec * (1-lam)
+        return img, lb
 
     def cutout(self, image):
         img = image.copy()
@@ -59,7 +64,7 @@ class Augment:
             img = cv2.blur(img, (5, 5))
         return img
 
-    def run(self, image, label):
+    def run(self, image):
         img = image.copy()
         img = cv2.resize(img, (H, W))
         # img = self.cutout(img)
@@ -70,4 +75,11 @@ class Augment:
         img = self.flip(img)
         img = np.transpose(img, [2, 0, 1])
         img = (img - 127.5) / 128.0
-        return img, label
+
+        return img
+
+    def run2(self, image, label, image_sec, label_sec):
+        img = self.run(image)
+        img2 = self.run(image_sec)
+        img, lb = self.mixup(img, label, img2, label_sec)
+        return img, lb

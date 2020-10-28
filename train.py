@@ -19,6 +19,11 @@ def get_label(output):
     return torch.argmax(output, dim=1)
 
 
+def get_loss(ft, target):
+    logsoftmax = nn.LogSoftmax(dim=1).to(device)
+    return torch.mean(torch.sum(-target * logsoftmax(ft), dim=1))
+
+
 def save_grad(name):
     def hook(grad):
         grads[name] = grad
@@ -36,7 +41,7 @@ def get_max_gradient(g):
 
 
 def save_test(status, filepath):
-    if status != None:
+    if status is not None:
         torch.save(status, filepath)
         print('Model saved to '+filepath)
     ip_port = ('127.0.0.1', server)
@@ -89,10 +94,6 @@ if __name__ == '__main__':
     else:
         epoch_start = 0
         iter_start = 0
-        # torch.save({'net': net.state_dict(),
-        #             'epoch': 0,
-        #             'iter': 0
-        #             }, modelSavePath+str(0)+'.tar')
         print('Model saved to %s' % (modelSavePath + '.tar'))
 
     num_params = 0
@@ -114,18 +115,16 @@ if __name__ == '__main__':
             train_x, train_y = inputs.to(device), labels.to(device)
             dt = time.time() - batch_data_time
             data_time = data_time + dt
-
-            batch_train_time = time.time()
-            # learning_rate = adjust_lr(optimizer, epoch, learning_rate)
-            # print(optimizer.state_dict()['param_groups'])
-            feat = net(train_x)
             # exit(0)
+            batch_train_time = time.time()
+            feat = net(train_x)
             feat = arcFace(feat, train_y)
             feat.register_hook(save_grad('feat_grad'))
-            loss = criterion(feat, train_y)
-            optimizer.zero_grad()   # zero the gradient buffers
+            # loss = criterion(feat, train_y)
+            loss = get_loss(feat, train_y)
+            optimizer.zero_grad()
             loss.backward()
-            optimizer.step()    # Does the update
+            optimizer.step()
             scheduler.step()
             tt = time.time() - batch_train_time
             train_time = train_time + tt
@@ -137,7 +136,7 @@ if __name__ == '__main__':
             #           get_max_gradient(grads['feat_grad'].gather(1, train_y.view(-1, 1))))
 
             pred = get_label(feat)
-            acc = (pred == train_y).sum().float() / train_y.size(0) * 100
+            acc = (pred == train_y.argmax(dim=1)).sum().float() / train_y.size(0) * 100
             # if iterations % 5000 == 0:
             #     state = {'net': net.state_dict(),
             #              'arc': arcFace.state_dict(),

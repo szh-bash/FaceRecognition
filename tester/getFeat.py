@@ -37,7 +37,7 @@ def get(filepath, data):
     _store = {}
     _feats = []
     # load data
-    batch_size = 32
+    batch_size = 1
     data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=False, pin_memory=True)
 
     # load model

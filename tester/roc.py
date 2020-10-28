@@ -63,8 +63,6 @@ def global_calc(_index, _ground_truth, __test_total):
             _roc += pos * pow(1 / __test_total * 2, 2)
             __true_ratio.append(pos / __test_total * 2)
         _max_test_acc = max(_max_test_acc, (pos+__test_total//2-neg)/__test_total)
-    print(__true_ratio[-1])
-    # __true_ratio[-1] = 1.0
     return __true_ratio, _max_test_acc*100, _roc
 
 

@@ -15,6 +15,7 @@ aug = Augment()
 
 
 class DataReader(Dataset):
+    rng = np.random
 
     def __init__(self, st, data_name):
         self.st = st
@@ -92,9 +93,17 @@ class DataReader(Dataset):
 
     def __getitem__(self, index):
         if self.st == 'train':
+            index_sec = int(self.rng.rand()*self.len)
+            # print(index_sec) # same in diff gpu
+            label = np.zeros(self.person)
+            label_sec = np.zeros(self.person)
+            label[self.y[index]] = 1
+            label_sec[self.y[index_sec]] = 1
             image = np.array(cv2.imread(self.name[index]), dtype=float).copy()
-            image, label = aug.run(image, self.y[index])
+            image_sec = np.array(cv2.imread(self.name[index_sec]), dtype=float).copy()
+            image, label = aug.run2(image, label, image_sec, label_sec)
             image = torch.from_numpy(image).float()
+            label = torch.from_numpy(label).float()
             return image, label
         elif self.st == 'test':
             size = (MinS + MaxS) // 2
@@ -104,7 +113,10 @@ class DataReader(Dataset):
             image = image[idx:idx + H, idx:idx + W, :]
             image = np.transpose(image, [2, 0, 1])
             image = torch.from_numpy((image - 127.5) / 128).float()
-            return image, self.y[index], self.name[index]
+            label = np.zeros(self.len)
+            label[self.y[index]] = 1
+            label = torch.from_numpy(label).float()
+            return image, label, self.name[index]
         else:
             exit(-1)
 
