@@ -1,21 +1,25 @@
 import cv2
 import os
 import torch
+import time
 import numpy as np
 from torch.utils.data import Dataset
 import progressbar as pb
-from utils.DataHandler import Augment, MinS, MaxS, W, H
+from utils.DataHandler import MinS, MaxS, W, H
+import utils.DataHandler as Aug
 from config import dataPath
 # import utils.mtcnn_simple as mts
 # lfw: 5749, 13233
 # webface: 10575, 494414
 # clean-webface: 10575, 455594
 
-aug = Augment()
-
 
 class DataReader(Dataset):
+    # np.random.seed(int(time.time()*10000000000000+os.getpid()) % 998244353)
+    # np.random.seed((os.getpid()*32767) % 998244353)
+    # np.random.seed(os.getpid() % 10)
     rng = np.random
+    print(os.getpid())
 
     def __init__(self, st, data_name):
         self.st = st
@@ -43,18 +47,20 @@ class DataReader(Dataset):
                    ' ', pb.FileTransferSpeed()]
         pgb = pb.ProgressBar(widgets=widgets,
                              maxval=494414 if 'Web' in data_name else 13233).start()
-        if self.st == 'train':
+        if self.st == 'train' or self.st == 'FTrain':
             self.person = -1
-            file = open('/data/shenzhonghai/WebFace-cleaned_list.txt')
+            file = open('/data/shenzhonghai/WebFace-cleaned_list.txt') if self.st == 'train' else open(filepath+'/lst')
+            mp = '\\' if self.st == 'train' else '/'
+            sp = ' ' if self.st == 'train' else '\t'
             for st in file.readlines():
-                st = st.split(' ')
-                if int(st[1]) > self.person:
+                st = st.split(sp)
+                if int(st[-1]) > self.person:
                     self.idx.append(self.len)
                     self.person += 1
-                st = st[0].split('\\')
+                st = st[-2].split(mp)
                 self.len += 1
-                if os.path.exists(filepath+'/'+st[0]+'/'+st[1]):
-                    self.name.append(filepath+'/'+st[0]+'/'+st[1])
+                if os.path.exists(filepath+'/'+st[-2]+'/'+st[-1]):
+                    self.name.append(filepath+'/'+st[-2]+'/'+st[-1])
                     self.label.append(self.person)
                 pgb.update(self.len)
             self.person += 1
@@ -92,18 +98,20 @@ class DataReader(Dataset):
         self.y = torch.from_numpy(self.label).long()
 
     def __getitem__(self, index):
-        if self.st == 'train':
-            index_sec = int(self.rng.rand()*self.len)
-            # print(index_sec) # same in diff gpu
-            label = np.zeros(self.person)
-            label_sec = np.zeros(self.person)
-            label[self.y[index]] = 1
-            label_sec[self.y[index_sec]] = 1
+        if self.st == 'train' or self.st == 'FTrain':
+            # index_sec = int(self.rng.rand()*self.len)
+            # print(os.getpid(), index_sec)  # same in diff gpu
+            # label = np.zeros(self.person)
+            # label_sec = np.zeros(self.person)
+            # label[self.y[index]] = 1
+            # label_sec[self.y[index_sec]] = 1
+            label = self.y[index]
             image = np.array(cv2.imread(self.name[index]), dtype=float).copy()
-            image_sec = np.array(cv2.imread(self.name[index_sec]), dtype=float).copy()
-            image, label = aug.run2(image, label, image_sec, label_sec)
+            # image_sec = np.array(cv2.imread(self.name[index_sec]), dtype=float).copy()
+            # image, label = aug.run2(image, label, image_sec, label_sec)
+            image = Aug.run(self.rng, image)
             image = torch.from_numpy(image).float()
-            label = torch.from_numpy(label).float()
+            # label = torch.from_numpy(label).float()
             return image, label
         elif self.st == 'test':
             size = (MinS + MaxS) // 2
@@ -122,3 +130,8 @@ class DataReader(Dataset):
 
     def __len__(self):
         return self.len
+
+
+if __name__ == '__main__':
+    print(int(time.time()*10000000000000))
+    print(int(time.time()*10000000000000))

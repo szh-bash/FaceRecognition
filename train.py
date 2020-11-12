@@ -58,7 +58,7 @@ def save_test(status, filepath):
 
 if __name__ == '__main__':
     # set config
-    data = DataReader('train', 'MegaWeb112')
+    data = DataReader('FTrain', 'MegaWeb112')
     slides = (data.len - 1) // batch_size + 1
     grads = {}
 
@@ -120,8 +120,8 @@ if __name__ == '__main__':
             feat = net(train_x)
             feat = arcFace(feat, train_y)
             feat.register_hook(save_grad('feat_grad'))
-            # loss = criterion(feat, train_y)
-            loss = get_loss(feat, train_y)
+            loss = criterion(feat, train_y)
+            # loss = get_loss(feat, train_y)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -136,17 +136,8 @@ if __name__ == '__main__':
             #           get_max_gradient(grads['feat_grad'].gather(1, train_y.view(-1, 1))))
 
             pred = get_label(feat)
-            acc = (pred == train_y.argmax(dim=1)).sum().float() / train_y.size(0) * 100
-            # if iterations % 5000 == 0:
-            #     state = {'net': net.state_dict(),
-            #              'arc': arcFace.state_dict(),
-            #              'optimizer': optimizer.state_dict(),
-            #              'scheduler': scheduler.state_dict(),
-            #              'epoch': epoch,
-            #              'iter': iterations,
-            #              'loss': loss,
-            #              'acc': acc}
-            #     save_test(state, modelSavePath+'_'+str(iterations)+'.tar')
+            # acc = (pred == train_y.argmax(dim=1)).sum().float() / train_y.size(0) * 100
+            acc = (pred == train_y).sum().float() / train_y.size(0) * 100
             print('epoch: %d/%d, iters: %d, lr: %.5f, '
                   'loss: %.5f, acc: %.5f, train_time: %.5f, data_time: %.5f' %
                   (epoch, Total, iterations, scheduler.get_lr()[0],

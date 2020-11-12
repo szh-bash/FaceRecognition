@@ -2,15 +2,14 @@ import os
 import re
 import sys
 import torch
-import pandas as pd
 import numpy as np
 import progressbar as pb
 
 sys.path.append("..")
-from init import DataReader
 from model.resnet.resnet import resnet50, resnet_face50
 from utils.misc import write_feat, write_meta
 from torch.utils.data import DataLoader
+from config import test_batch_size as batch_size
 
 
 def save_feat(ft, name_list, lim):
@@ -37,7 +36,6 @@ def get(filepath, data):
     _store = {}
     _feats = []
     # load data
-    batch_size = 1
     data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=False, pin_memory=True)
 
     # load model

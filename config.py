@@ -24,14 +24,15 @@ dataPath = {
 # train/test
 Total = 40
 batch_size = 512
+test_batch_size = 1
 learning_rate = 0.001
 weight_decay = 0.0005
-modelName = 'resnet_face50_MegaWeb112_base5_mixup_05_ST_Last'
+modelName = 'resnet_face50_MegaWeb112_base5_newrand_retry2'
 modelSavePath = '/data/shenzhonghai/FaceClustering/models/'+modelName
 modelPath = '/data/shenzhonghai/FaceClustering/models/'+modelName+'.tar'
 dp = 0.00
 pairsTxtPath = '/data/shenzhonghai/lfw/pairs.txt'
-server = 2333
+server = 2332
 
 # GCN
 K = 2

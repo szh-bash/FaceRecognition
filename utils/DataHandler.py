@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
-# import torch
+import os
+import time
 import torchvision.transforms as trans
 from config import batch_size
 
@@ -13,73 +14,78 @@ MinS = 112
 MaxS = 128
 
 
-class Augment:
-    rng = np.random
-    rng2 = np.random
+def mixup(rng, image, label, image_sec, label_sec, alpha=0.05):
+    lam = rng.beta(alpha, alpha)
+    # print(lam)  # same in diff gpu
+    img = image * lam + image_sec * (1-lam)
+    lb = label * lam + label_sec * (1-lam)
+    return img, lb
 
-    def mixup(self, image, label, image_sec, label_sec, alpha=0.05):
-        lam = self.rng2.beta(alpha, alpha)
-        # print(lam)  # same in diff gpu
-        img = image * lam + image_sec * (1-lam)
-        lb = label * lam + label_sec * (1-lam)
-        return img, lb
 
-    def cutout(self, image):
-        img = image.copy()
-        if self.rng.rand() < 0.5:
-            y = int(self.rng.rand() * H)
-            x = int(self.rng.rand() * W)
-            img[y:min(H, y+_CH), x:min(W, x+_CW), :] = 0
-        return img
+def cutout(rng, image):
+    img = image.copy()
+    if rng.rand() < 0.5:
+        y = int(rng.rand() * H)
+        x = int(rng.rand() * W)
+        img[y:min(H, y+_CH), x:min(W, x+_CW), :] = 0
+    return img
 
-    def resize(self, image):
-        img = image.copy()
-        new_size = self.rng.randint(MinS, MaxS+1)
-        img = cv2.resize(img, (new_size, new_size))
-        return img
 
-    def crop(self, image):
-        img = image.copy()
-        dh = img.shape[1] - H
-        dw = img.shape[0] - W
-        y = int(self.rng.rand()*dh)
-        x = int(self.rng.rand()*dw)
-        return img[y:y+H, x:x+W, :]
+def resize(rng, image):
+    img = image.copy()
+    # print(rng.rand())
+    new_size = rng.randint(MinS, MaxS+1)
+    img = cv2.resize(img, (new_size, new_size))
+    return img
 
-    def rotate(self, image):
-        img = image.copy()
-        if self.rng.rand() < 0.3:
-            img = trans.RandomRotation(img, 15)  # -15 -> +15
-        return img
 
-    def flip(self, image):
-        img = image.copy()
-        if self.rng.rand() < 0.5:
-            img = img[:, ::-1, :]
-        return img
+def crop(rng, image):
+    img = image.copy()
+    dh = img.shape[1] - H
+    dw = img.shape[0] - W
+    # print(rng.rand())
+    y = int(rng.rand()*dh)
+    x = int(rng.rand()*dw)
+    return img[y:y+H, x:x+W, :]
 
-    def gaussian_blur(self, image):
-        img = image.copy()
-        if self.rng.rand() < 0.3:
-            img = cv2.blur(img, (5, 5))
-        return img
 
-    def run(self, image):
-        img = image.copy()
-        img = cv2.resize(img, (H, W))
-        # img = self.cutout(img)
-        img = self.resize(img)
-        # img = self.rotate(img)
-        img = self.gaussian_blur(img)
-        img = self.crop(img)
-        img = self.flip(img)
-        img = np.transpose(img, [2, 0, 1])
-        img = (img - 127.5) / 128.0
+def rotate(rng, image):
+    img = image.copy()
+    if rng.rand() < 0.3:
+        img = trans.RandomRotation(img, 15)  # -15 -> +15
+    return img
 
-        return img
 
-    def run2(self, image, label, image_sec, label_sec):
-        img = self.run(image)
-        img2 = self.run(image_sec)
-        img, lb = self.mixup(img, label, img2, label_sec)
-        return img, lb
+def flip(rng, image):
+    img = image.copy()
+    # print(rng.rand())
+    if rng.rand() < 0.5:
+        img = img[:, ::-1, :]
+    return img
+
+
+def gaussian_blur(rng, image):
+    img = image.copy()
+    # print(rng.rand())
+    if rng.rand() < 0.3:
+        img = cv2.blur(img, (5, 5))
+    return img
+
+
+def run(rng, image):
+    img = image.copy()
+    img = cv2.resize(img, (H, W))
+    img = resize(rng, img)
+    img = gaussian_blur(rng, img)
+    img = crop(rng, img)
+    img = flip(rng, img)
+    img = np.transpose(img, [2, 0, 1])
+    img = (img - 127.5) / 128.0
+    return img
+
+
+def run2(image, label, image_sec, label_sec):
+    img = run(image)
+    img2 = run(image_sec)
+    img, lb = mixup(img, label, img2, label_sec)
+    return img, lb
