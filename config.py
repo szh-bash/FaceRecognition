@@ -22,12 +22,13 @@ dataPath = {
 }
 
 # train/test
-Total = 40
+Total = 72
 batch_size = 512
 test_batch_size = 1
 learning_rate = 0.001
 weight_decay = 0.0005
-modelName = 'resnet_face50_MegaWeb112_base5_newrand_retry3'
+milestones = [36000, 54000]
+modelName = 'resnetFace50_lr3654_m40_112'
 modelSavePath = '/data/shenzhonghai/FaceClustering/models/'+modelName
 modelPath = '/data/shenzhonghai/FaceClustering/models/'+modelName+'.tar'
 dp = 0.00

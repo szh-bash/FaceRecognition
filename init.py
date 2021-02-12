@@ -106,7 +106,7 @@ class DataReader(Dataset):
             # label[self.y[index]] = 1
             # label_sec[self.y[index_sec]] = 1
             label = self.y[index]
-            image = np.array(cv2.imread(self.name[index]), dtype=float).copy()
+            image = np.array(cv2.imread(self.name[index]), dtype=float)
             # image_sec = np.array(cv2.imread(self.name[index_sec]), dtype=float).copy()
             # image, label = aug.run2(image, label, image_sec, label_sec)
             image = Aug.run(self.rng, image)

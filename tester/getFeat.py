@@ -6,8 +6,8 @@ import numpy as np
 import progressbar as pb
 
 sys.path.append("..")
-from model.resnet.resnet import resnet50, resnet_face50
-from utils.misc import write_feat, write_meta
+from model.resnet import resnet_face50
+from utils.misc import write_feat
 from torch.utils.data import DataLoader
 from config import test_batch_size as batch_size
 

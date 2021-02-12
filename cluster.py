@@ -7,7 +7,7 @@ import networkx as nx
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 
-from model.gcn.gcn import GCN
+from model.gcn import GCN
 from utils.Graph import build_karate_club_graph
 
 # from config import
