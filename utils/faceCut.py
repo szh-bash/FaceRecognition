@@ -6,10 +6,10 @@ import time
 import numpy as np
 from PIL import Image
 from mtcnn import MTCNN
-# import face_recognition
+import face_recognition
 import progressbar as pb
 from multiprocessing import Process, Lock, Value
-# from collections import defaultdict
+from collections import defaultdict
 sys.path.append('..')
 from config import dataPath
 
@@ -226,7 +226,7 @@ def worker(le, ri):
             with lock:
                 failed.value += 1
             if md == 1:
-                face = cv2.imread(msg[0])
+                face = cv2.imread(msg[2])
             else:
                 continue
         cv2.imwrite(msg[1], face, [int(cv2.IMWRITE_JPEG_QUALITY), 100])
@@ -239,8 +239,9 @@ if __name__ == '__main__':
     count = Value('i', 0)
     failed = Value('i', 0)
     mode = 'mtcnn'
-    origin_path = dataPath['LfwDf']
-    target_path = dataPath['MTLfwDf112P']
+    origin_path = dataPath['Lfw']
+    target_path = dataPath['MTLfwMix']
+    fill_path = dataPath['MegaLfw112']
     if 'lfw' in origin_path:
         md = 1
         length = 13233
@@ -269,7 +270,8 @@ if __name__ == '__main__':
         for allSon in child_dir:
             son = os.path.join('%s/%s' % (child, allSon))
             acs = os.path.join('%s/%s' % (acc, allSon))
-            q.append([son, acs])
+            backup = os.path.join('%s/%s/%s' % (fill_path, allDir, allSon))
+            q.append([son, acs, backup])
     print('DATA LOADED!')
     print(np.array(q).shape)
     pgb.start()
