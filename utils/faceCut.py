@@ -6,12 +6,14 @@ import time
 import numpy as np
 from PIL import Image
 from mtcnn import MTCNN
-import face_recognition
+# import face_recognition
 import progressbar as pb
 from multiprocessing import Process, Lock, Value
 from collections import defaultdict
 sys.path.append('..')
+sys.path.append('../detection/RetinaFace')
 from config import dataPath
+from detection.RetinaFace.retina_align import retina_face
 
 
 point_96 = [[30.2946, 51.6963],  # 112x96的目标点
@@ -205,6 +207,14 @@ def mtcnn_align(img_path, det):
     return img
 
 
+def retina_align(img_path):
+    img, landmarks = retina_face(img_path)
+    if len(landmarks) == 0:
+        return []
+    img = warp_im(img, landmarks, point_112)[:112, :112, :]
+    return img
+
+
 def worker(le, ri):
     global lock
     global count
@@ -219,6 +229,8 @@ def worker(le, ri):
             face = deal_face(msg[0])
         elif mode == 'mtcnn':
             face = mtcnn_align(msg[0], detector)
+        elif mode == 'retina':
+            face = retina_align(msg[0])
         else:
             print('align method 404')
             exit(-1)
@@ -238,10 +250,10 @@ if __name__ == '__main__':
     lock = Lock()
     count = Value('i', 0)
     failed = Value('i', 0)
-    mode = 'mtcnn'
+    mode = 'retina'
     origin_path = dataPath['Lfw']
-    target_path = dataPath['MTLfwMix']
-    fill_path = dataPath['MegaLfw112']
+    target_path = dataPath['RetinaLfw']
+    fill_path = dataPath['Lfw']
     if 'lfw' in origin_path:
         md = 1
         length = 13233

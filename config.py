@@ -11,6 +11,7 @@ dataPath = {
 'ACLfwDf112P': '/dev/shm/Multi-Alined-Cropped-lfw-deepfunneled-112-perfect',
 'MTLfwDf112P': '/data/shenzhonghai/mtcnn-lfw-112x112-perfect',
 'MTLfwMix': '/data/shenzhonghai/mtcnn-lfw-mix',
+'RetinaLfw': '/data/shenzhonghai/retina-lfw',
 'MegaLfw112': '/data/shenzhonghai/lfw-112x112',
 'Web': '/dev/shm/CASIA-WebFace',
 'MTWeb': '/dev/shm/mtcnn-CASIA-WebFace',

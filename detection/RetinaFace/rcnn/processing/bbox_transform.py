@@ -1,9 +1,6 @@
 import numpy as np
-import sys
-# sys.path.append('C:\\Users\\x7999\\PycharmProjects\\FaceRecognition\\detection\\RetinaFace\\rcnn')
-# sys.path.append('C:\\Users\\x7999\\PycharmProjects\\FaceRecognition\\detection\\RetinaFace\\rcnn\\cython')
 from ..cython.bbox import bbox_overlaps_cython
-# from rcnn.config import config
+#from rcnn.config import config
 
 
 def bbox_overlaps(boxes, query_boxes):
