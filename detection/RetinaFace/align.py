@@ -19,7 +19,7 @@ def retina_face(img_path, img_result='test_detector.jpg'):
     # detector = RetinaFace('./model/R50', 0, gpuid, 'net3')
 
     img = cv2.imread(img_path)
-    # print(img.shape)
+    # img = cv2.copyMakeBorder(img, 24, 24, 24, 24, cv2.BORDER_CONSTANT, value=[0, 0, 0])
     im_shape = img.shape
     target_size = scales[0]
     max_size = scales[1]
@@ -32,8 +32,6 @@ def retina_face(img_path, img_result='test_detector.jpg'):
     if np.round(im_scale * im_size_max) > max_size:
         im_scale = float(max_size) / float(im_size_max)
 
-    # print('im_scale', im_scale)
-
     scales = [im_scale]
     flip = False
 
@@ -41,17 +39,11 @@ def retina_face(img_path, img_result='test_detector.jpg'):
                                        thresh,
                                        scales=scales,
                                        do_flip=flip)
-    # print(landmarks)
-    # print(c, faces.shape, landmarks.shape)
 
     if faces is not None:
-        # print('find', faces.shape[0], 'faces')
-        if faces.shape[0] > 1:
-            print('Multi Faces detected!')
-            print(img_path)
-        return img, landmarks[0]
+        return img, landmarks[0], faces.shape[0]
 
-    return img, []
+    return img, [], faces.shape[0]
 
 
 if __name__ == "__main__":

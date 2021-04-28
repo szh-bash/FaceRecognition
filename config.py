@@ -2,6 +2,8 @@
 
 # init
 dataPath = {
+'src': '/data/shenzhonghai/PIE_dataset/train',
+'dst': '/data/shenzhonghai/PIE_dataset/train-112x112',
 'Lfw': '/data/shenzhonghai/lfw/lfw',
 'LfwDf': '/dev/shm/lfw-deepfunneled',
 'MTLfw': '/data/shenzhonghai/lfw/mtcnn-lfw',
@@ -11,16 +13,17 @@ dataPath = {
 'ACLfwDf112P': '/dev/shm/Multi-Alined-Cropped-lfw-deepfunneled-112-perfect',
 'MTLfwDf112P': '/data/shenzhonghai/mtcnn-lfw-112x112-perfect',
 'MTLfwMix': '/data/shenzhonghai/mtcnn-lfw-mix',
-'RetinaLfw': '/data/shenzhonghai/retina-lfw',
+'RetinaLfwWrap': '/data/shenzhonghai/retina-lfw-wrap',
 'MegaLfw112': '/data/shenzhonghai/lfw-112x112',
-'Web': '/dev/shm/CASIA-WebFace',
+'Web': '/data/shenzhonghai/CASIA-WebFace',
 'MTWeb': '/dev/shm/mtcnn-CASIA-WebFace',
 'ACWeb': '/dev/shm/Multi-Alined-Cropped-CASIA-WebFace',
 'ACmtWeb': '/dev/shm/Multi-Alined-Cropped-mtcnn-CASIA-WebFace',
 'ACWeb112': '/dev/shm/Multi-Alined-Cropped-CASIA-WebFace-112',
 'MulACWeb112P': '/dev/shm/Multi-Alined-Cropped-CASIA-WebFace-112-Perfect',
 'MTWeb112P': '/data/shenzhonghai/mtcnn-casia-112x112-perfect',
-'MegaWeb112': '/data/shenzhonghai/casia-112x112'
+'MegaWeb112': '/data/shenzhonghai/casia-112x112',
+'RetinaWebWrap': '/data/shenzhonghai/retina-casia-wrap'
 }
 
 # train/test

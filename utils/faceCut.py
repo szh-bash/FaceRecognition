@@ -1,3 +1,4 @@
+import multiprocessing
 import os
 import cv2
 import sys
@@ -5,7 +6,7 @@ import math
 import time
 import numpy as np
 from PIL import Image
-from mtcnn import MTCNN
+# from mtcnn import MTCNN
 # import face_recognition
 import progressbar as pb
 from multiprocessing import Process, Lock, Value
@@ -13,7 +14,7 @@ from collections import defaultdict
 sys.path.append('..')
 sys.path.append('../detection/RetinaFace')
 from config import dataPath
-from detection.RetinaFace.retina_align import retina_face
+from detection.RetinaFace.align import retina_face
 
 
 point_96 = [[30.2946, 51.6963],  # 112x96的目标点
@@ -208,9 +209,13 @@ def mtcnn_align(img_path, det):
 
 
 def retina_align(img_path):
-    img, landmarks = retina_face(img_path)
+    global multi_face
+    img, landmarks, faces = retina_face(img_path)
     if len(landmarks) == 0:
         return []
+    if faces > 1:
+        with lock:
+            multi_face.value += 1
     img = warp_im(img, landmarks, point_112)[:112, :112, :]
     return img
 
@@ -219,29 +224,32 @@ def worker(le, ri):
     global lock
     global count
     global pgb
-    detector = MTCNN()
     for j in range(le, ri):
+        if j >= len(q):
+            break
         msg = q[j]
+        face = []
         with lock:
             pgb.update(count.value)
             count.value += 1
-        if mode == 'face_recognition':
-            face = deal_face(msg[0])
-        elif mode == 'mtcnn':
-            face = mtcnn_align(msg[0], detector)
-        elif mode == 'retina':
-            face = retina_align(msg[0])
-        else:
-            print('align method 404')
-            exit(-1)
-        if len(face) == 0:
+        try:
+            if mode == 'face_recognition':
+                face = deal_face(msg[0])
+            elif mode == 'mtcnn':
+                face = mtcnn_align(msg[0], MTCNN())
+            elif mode == 'retina':
+                face = retina_align(msg[0])
+            else:
+                print('align method 404')
+                exit(-1)
+            cv2.imwrite(msg[1], face, [int(cv2.IMWRITE_JPEG_QUALITY), 100])
+        except:
+            print(msg[0])
             with lock:
                 failed.value += 1
             if md == 1:
                 face = cv2.imread(msg[2])
-            else:
-                continue
-        cv2.imwrite(msg[1], face, [int(cv2.IMWRITE_JPEG_QUALITY), 100])
+                cv2.imwrite(msg[1], face, [int(cv2.IMWRITE_JPEG_QUALITY), 100])
 
 
 if __name__ == '__main__':
@@ -250,23 +258,17 @@ if __name__ == '__main__':
     lock = Lock()
     count = Value('i', 0)
     failed = Value('i', 0)
+    multi_face = Value('i', 0)
     mode = 'retina'
-    origin_path = dataPath['Lfw']
-    target_path = dataPath['RetinaLfw']
-    fill_path = dataPath['Lfw']
+    origin_path = dataPath['Web']
+    target_path = dataPath['RetinaWebWrap']
+    fill_path = origin_path
     if 'lfw' in origin_path:
         md = 1
-        length = 13233
-    else:
+    elif 'WebFace' in origin_path:
         md = 0
-        length = 494414
-
-    widgets = ['Dealing: ', pb.Percentage(),
-               ' ', pb.Bar(marker='>', left='[', right=']', fill='='),
-               ' ', pb.Timer(),
-               ' ', pb.ETA(),
-               ' ', pb.FileTransferSpeed()]
-    pgb = pb.ProgressBar(widgets=widgets, maxval=length)
+    else:
+        md = 1
 
     print(origin_path+' to '+target_path)
     print('Align mode: %s' % mode)
@@ -280,18 +282,28 @@ if __name__ == '__main__':
         if not os.path.exists(acc):
             os.mkdir(acc)
         for allSon in child_dir:
+            if allSon[-4:] != '.jpg':
+               continue
             son = os.path.join('%s/%s' % (child, allSon))
             acs = os.path.join('%s/%s' % (acc, allSon))
             backup = os.path.join('%s/%s/%s' % (fill_path, allDir, allSon))
             q.append([son, acs, backup])
     print('DATA LOADED!')
     print(np.array(q).shape)
+    count_imgs = np.array(q).shape[0]
+
+    widgets = ['Dealing: ', pb.Percentage(),
+               ' ', pb.Bar(marker='>', left='[', right=']', fill='='),
+               ' ', pb.Timer(),
+               ' ', pb.ETA(),
+               ' ', pb.FileTransferSpeed()]
+    pgb = pb.ProgressBar(widgets=widgets, maxval=count_imgs)
     pgb.start()
 
     p = []
     for i in range(num-1):
-        p.append(Process(target=worker, args=(length//num*i, length//num*(i+1))))
-    p.append(Process(target=worker, args=(length//num*(num-1), length)))
+        p.append(Process(target=worker, args=(count_imgs//num*i, count_imgs//num*(i+1))))
+    p.append(Process(target=worker, args=(count_imgs//num*(num-1), count_imgs)))
     for i in range(num):
         p[i].start()
     for i in range(num):
@@ -299,4 +311,5 @@ if __name__ == '__main__':
     pgb.finish()
     print('succeed: %d' % (count.value-failed.value))
     print('failed: %d' % failed.value)
+    print('multi-face detected: %d' % multi_face.value)
     print('MISSION COMPLETED!')
