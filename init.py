@@ -15,11 +15,7 @@ from config import dataPath
 
 
 class DataReader(Dataset):
-    # np.random.seed(int(time.time()*10000000000000+os.getpid()) % 998244353)
-    # np.random.seed((os.getpid()*32767) % 998244353)
-    # np.random.seed(os.getpid() % 10)
     rng = np.random
-    print(os.getpid())
 
     def __init__(self, st, data_name):
         self.st = st

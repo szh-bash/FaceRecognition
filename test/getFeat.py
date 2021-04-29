@@ -18,9 +18,21 @@ def save_feat(ft, name_list, lim):
     ft = ft.cpu()
     for dx in range(lim):
         filepath, filename = os.path.split(name_list[dx])
-        loc = re.search(r'[\d]+', filename).span()
-        name = filename[0:loc[0]-1]
-        idx = int(filename[loc[0]:loc[1]])
+
+        # lfw
+        # loc = re.search(r'[\d]+', filename).span()
+        # name = filename[0:loc[0]-1]
+        # idx = int(filename[loc[0]:loc[1]])
+
+        # faces/grimace
+        # st = filename.split('.')
+        # name = st[0]
+        # idx = int(st[1])
+
+        # PIE
+        filpg, name = os.path.split(filepath)
+        idx = int(filename.split('.')[0])
+
         __store[name + '/' + str(idx)] = ft[dx].data.numpy()
         __feats.append(ft[dx].data.numpy())
         # if not os.path.exists(path+name):

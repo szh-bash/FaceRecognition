@@ -3,9 +3,9 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 sys.path.append("..")
-from tester.getFeat import get
+from getFeat import get
 from init import DataReader
-from config import modelPath, pairsTxtPath, server
+from config import modelPath, pairsTxtPath, server, verificationPath
 import socket
 import time
 
@@ -38,6 +38,24 @@ def get_img_pairs_list(**_store):
     return total, res_dist, res_gt
 
 
+def verification(**_store):
+    file = open(verificationPath)
+    st = file.readline()
+    total = int(st)
+    res_dist = []
+    res_gt = []
+    pos = 0
+    neg = 0
+    for i in range(total):
+        st = file.readline().split(' ')
+        res_dist.append(get_distance(st[0]+'/'+st[1], st[2]+'/'+st[3], **_store))
+        res_gt.append(int(st[4]))
+        pos += int(st[4])
+        neg += 1 ^ int(st[4])
+    file.close()
+    return total, res_dist, res_gt, pos, neg
+
+
 def get_acc(threshold_list, cases, dist, ground_truth):
     res = []
     for threshold in threshold_list:
@@ -46,7 +64,7 @@ def get_acc(threshold_list, cases, dist, ground_truth):
     return res
 
 
-def global_calc(_index, _ground_truth, __test_total):
+def global_calc(_index, _ground_truth, __test_total, __pos, __neg):
     _roc = 0
     pos = 0
     neg = 0
@@ -56,13 +74,13 @@ def global_calc(_index, _ground_truth, __test_total):
         if _ground_truth[idx]:
             pos += 1
             # if len(__true_ratio) > 0:
-            __true_ratio[-1] += 1 / __test_total * 2
+            __true_ratio[-1] += 1 / __pos
         else:
             neg += 1
             # if len(__true_ratio) > 0:
-            _roc += pos * pow(1 / __test_total * 2, 2)
-            __true_ratio.append(pos / __test_total * 2)
-        _max_test_acc = max(_max_test_acc, (pos+__test_total//2-neg)/__test_total)
+            _roc += pos * pow(1 / __pos, 2)
+            __true_ratio.append(pos / __pos)
+        _max_test_acc = max(_max_test_acc, (pos+__neg-neg)/__test_total)
     return __true_ratio, _max_test_acc*100, _roc
 
 
@@ -90,7 +108,8 @@ def cross_acc(_dist, _ground_truth):
 
 def calc(filepath):
     store, feats = get(filepath, data)
-    _test_total, dist, ground_truth = get_img_pairs_list(**store)
+    # print(store)
+    _test_total, dist, ground_truth, _pos, _neg = verification(**store)
     dist = np.array(dist)
     index = np.argsort(dist)[::-1]
     ground_truth = np.array(ground_truth)
@@ -99,13 +118,13 @@ def calc(filepath):
     _test_acc = get_acc(thresholds, _test_total, dist, ground_truth)
     print('Max test_acc: %.3f (threshold=%.5f)' % (_test_acc.max(), thresholds[_test_acc.argmax()]))
 
-    _cross_validation = cross_acc(dist, ground_truth) / _test_total * 100
+    # _cross_validation = cross_acc(dist, ground_truth) / _test_total * 100
 
     # Roc
-    _true_ratio, max_test_acc, roc = global_calc(index, ground_truth, _test_total)
+    _true_ratio, max_test_acc, roc = global_calc(index, ground_truth, _test_total, _pos, _neg)
     eer = np.abs(1 - np.array(_true_ratio) - np.linspace(0, 1.0, len(_true_ratio)))
     print('Global Test Accuracy: %.3f ' % max_test_acc)
-    print('Cross-validation Test Accuracy: %.3f' % _cross_validation)
+    # print('Cross-validation Test Accuracy: %.3f' % _cross_validation)
     print('@FAR = 0.00000: TAR = %.5f' % _true_ratio[0])
     print('@FAR = 0.00100: TAR = %.5f' % _true_ratio[3])
     print('@FAR = 0.01000: TAR = %.5f' % _true_ratio[30])
@@ -144,7 +163,9 @@ if __name__ == '__main__':
     # data = DataReader('test', 'MegaLfw112')
     # data = DataReader('test', 'MTLfwMix')
     # data = DataReader('test', 'MTLfw')
-    data = DataReader('test', 'RetinaLfw')
+    # data = DataReader('test', 'RetinaLfw')
+    # data = DataReader('test', 'grimace')
+    data = DataReader('test', 'pie')
     length = 10000
     thresholds_left, thresholds_right = -0.0, 1.0
     thresholds = np.linspace(thresholds_left, thresholds_right, length)

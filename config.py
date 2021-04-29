@@ -23,7 +23,12 @@ dataPath = {
 'MulACWeb112P': '/dev/shm/Multi-Alined-Cropped-CASIA-WebFace-112-Perfect',
 'MTWeb112P': '/data/shenzhonghai/mtcnn-casia-112x112-perfect',
 'MegaWeb112': '/data/shenzhonghai/casia-112x112',
-'RetinaWebWrap': '/data/shenzhonghai/retina-casia-wrap'
+'RetinaWebWrap': '/data/shenzhonghai/retina-casia-wrap',
+'grimace': '/data/shenzhonghai/Face_Recognition_Data/grimace-112x112',
+'faces96': '/data/shenzhonghai/Face_Recognition_Data/faces96-112x112',
+'faces95': '/data/shenzhonghai/Face_Recognition_Data/faces95-112x112',
+'faces94': '/data/shenzhonghai/Face_Recognition_Data/faces94-112x112',
+'pie': '/data/shenzhonghai/PIE_dataset/test'
 }
 
 # train/test
@@ -39,6 +44,10 @@ modelSavePath = '/data/shenzhonghai/FaceClustering/models/'+modelName
 modelPath = '/data/shenzhonghai/FaceClustering/models/'+modelName+'.tar'
 dp = 0.00
 pairsTxtPath = '/data/shenzhonghai/lfw/pairs.txt'
+# verificationPath = '/data/shenzhonghai/Face_Recognition_Data/grimace-pairs.txt'
+# verificationPath = '/data/shenzhonghai/Face_Recognition_Data/faces96-pairs.txt'
+# verificationPath = '/data/shenzhonghai/Face_Recognition_Data/faces95-pairs.txt'
+verificationPath = '/data/shenzhonghai/PIE_dataset/pairs.txt'
 server = 2332
 
 # GCN
