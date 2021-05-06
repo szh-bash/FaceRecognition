@@ -3,11 +3,12 @@ import numpy as np
 
 # init
 dataPath = {
-'src': '/data/shenzhonghai/PIE_dataset/train',
-'dst': '/data/shenzhonghai/PIE_dataset/train-112x112',
+'src': '/data/shenzhonghai/lfw/lfw',
+'dst': '/data/shenzhonghai/retina-lfw-center',
 'Lfw': '/data/shenzhonghai/lfw/lfw',
 'LfwDf': '/dev/shm/lfw-deepfunneled',
 'RetinaLfwWrap': '/data/shenzhonghai/retina-lfw-wrap',
+'RetinaLfwCenter': '/data/shenzhonghai/retina-lfw-center',
 'MegaLfw112': '/data/shenzhonghai/lfw-112x112',
 'Web': '/data/shenzhonghai/CASIA-WebFace',
 'MTWeb': '/dev/shm/mtcnn-CASIA-WebFace',
@@ -36,6 +37,7 @@ dp = 0.00
 verificationPath = {
     'MegaLfw112': '/data/shenzhonghai/lfw/pairs.txt',
     'RetinaLfwWrap': '/data/shenzhonghai/lfw/pairs.txt',
+    'RetinaLfwCenter': '/data/shenzhonghai/lfw/pairs.txt',
     'grimace': '/data/shenzhonghai/Face_Recognition_Data/grimace-pairs.txt',
     'faces96': '/data/shenzhonghai/Face_Recognition_Data/faces96-pairs.txt',
     'faces95': '/data/shenzhonghai/Face_Recognition_Data/faces95-pairs.txt',

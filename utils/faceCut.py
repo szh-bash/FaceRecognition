@@ -18,15 +18,21 @@ from detection.RetinaFace.align import retina_face
 
 
 point_96 = [[30.2946, 51.6963],  # 112x96的目标点
-               [65.5318, 51.6963],
-               [48.0252, 71.7366],
-               [33.5493, 92.3655],
-               [62.7299, 92.3655]]
+            [65.5318, 51.6963],
+            [48.0252, 71.7366],
+            [33.5493, 92.3655],
+            [62.7299, 92.3655]]
+# point_112 = [[30.2946+8.0000, 51.6963],  # 112x112的目标点
+#              [65.5318+8.0000, 51.6963],
+#              [48.0252+8.0000, 71.7366],
+#              [33.5493+8.0000, 92.3655],
+#              [62.7299+8.0000, 92.3655]]
 point_112 = [[30.2946+8.0000, 51.6963],  # 112x112的目标点
-               [65.5318+8.0000, 51.6963],
-               [48.0252+8.0000, 71.7366],
-               [33.5493+8.0000, 92.3655],
-               [62.7299+8.0000, 92.3655]]
+             [65.5318+8.0000, 51.5014],
+             [48.0252+8.0000, 71.7366],
+             [33.5493+8.0000, 92.3655],
+             [62.7299+8.0000, 92.2041]]
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 
 def align_face(image_array, landmarks):
@@ -194,9 +200,6 @@ def deal_face(img_path):
     return normed_face
 
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-
-
 def mtcnn_align(img_path, det):
     img = cv2.imread(img_path)
     result = det.detect_faces(img)
@@ -209,13 +212,9 @@ def mtcnn_align(img_path, det):
 
 
 def retina_align(img_path):
-    global multi_face
-    img, landmarks, faces = retina_face(img_path)
+    img, landmarks = retina_face(img_path)
     if len(landmarks) == 0:
         return []
-    if faces > 1:
-        with lock:
-            multi_face.value += 1
     img = warp_im(img, landmarks, point_112)[:112, :112, :]
     return img
 
@@ -258,10 +257,10 @@ if __name__ == '__main__':
     lock = Lock()
     count = Value('i', 0)
     failed = Value('i', 0)
-    multi_face = Value('i', 0)
+    # multi_face = Value('i', 0)
     mode = 'retina'
-    origin_path = dataPath['Web']
-    target_path = dataPath['RetinaWebWrap']
+    origin_path = dataPath['src']
+    target_path = dataPath['dst']
     fill_path = origin_path
     if 'lfw' in origin_path:
         md = 1
@@ -311,5 +310,5 @@ if __name__ == '__main__':
     pgb.finish()
     print('succeed: %d' % (count.value-failed.value))
     print('failed: %d' % failed.value)
-    print('multi-face detected: %d' % multi_face.value)
+    # print('multi-face detected: %d' % multi_face.value)
     print('MISSION COMPLETED!')

@@ -10,7 +10,7 @@ from retinaface import RetinaFace
 sys.path.append('.')
 
 
-def retina_face(img_path, img_result='test_detector.jpg'):
+def retina_face(img_path):
     thresh = 0.8
     scales = [250, 250]
 
@@ -19,6 +19,7 @@ def retina_face(img_path, img_result='test_detector.jpg'):
     # detector = RetinaFace('./model/R50', 0, gpuid, 'net3')
 
     img = cv2.imread(img_path)
+    # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     # img = cv2.copyMakeBorder(img, 24, 24, 24, 24, cv2.BORDER_CONSTANT, value=[0, 0, 0])
     im_shape = img.shape
     target_size = scales[0]
@@ -35,16 +36,17 @@ def retina_face(img_path, img_result='test_detector.jpg'):
     scales = [im_scale]
     flip = False
 
-    faces, landmarks = detector.detect(img,
-                                       thresh,
-                                       scales=scales,
-                                       do_flip=flip)
+    faces, landmarks = detector.detect_center(img,
+                                              thresh,
+                                              scales=scales,
+                                              do_flip=flip)
+    # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
     if faces is not None:
-        return img, landmarks[0], faces.shape[0]
+        return img, landmarks
 
-    return img, [], faces.shape[0]
+    return img, []
 
 
 if __name__ == "__main__":
-    retina_face('t1.jpg', 'test_detector.jpg')
+    retina_face('/data/shenzhonghai/lfw/lfw/Woody_Allen/Woody_Allen_0004.jpg')
