@@ -12,26 +12,27 @@ from torch.utils.data import DataLoader
 from config import test_batch_size as batch_size
 
 
-def save_feat(ft, name_list, lim):
+def save_feat(ft, name_list, lim, md):
     __store = {}
     __feats = []
     ft = ft.cpu()
     for dx in range(lim):
         filepath, filename = os.path.split(name_list[dx])
 
-        # lfw
-        # loc = re.search(r'[\d]+', filename).span()
-        # name = filename[0:loc[0]-1]
-        # idx = int(filename[loc[0]:loc[1]])
-
-        # faces/grimace
-        # st = filename.split('.')
-        # name = st[0]
-        # idx = int(st[1])
-
-        # PIE
-        filpg, name = os.path.split(filepath)
-        idx = int(filename.split('.')[0])
+        if md == 0:
+            # lfw
+            loc = re.search(r'[\d]+', filename).span()
+            name = filename[0:loc[0]-1]
+            idx = int(filename[loc[0]:loc[1]])
+        elif md == 1:
+            # faces/grimace
+            filpg, name = os.path.split(filepath)
+            st = filename.split('.')
+            idx = int(st[1])
+        else:
+            # PIE
+            filpg, name = os.path.split(filepath)
+            idx = int(filename.split('.')[0])
 
         __store[name + '/' + str(idx)] = ft[dx].data.numpy()
         __feats.append(ft[dx].data.numpy())
@@ -47,6 +48,9 @@ def save_feat(ft, name_list, lim):
 def get(filepath, data):
     _store = {}
     _feats = []
+    dataname = data.data_name
+    print(dataname)
+    md = 0 if 'Lfw' in dataname else 2 if 'pie' in dataname else 1
     # load data
     data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=False, pin_memory=True)
 
@@ -69,7 +73,7 @@ def get(filepath, data):
     pgb = pb.ProgressBar(widgets=widgets, maxval=Total).start()
     for i, (inputs, labels, names) in enumerate(data_loader):
         feat = model(inputs.to(device))
-        res = save_feat(feat, names, labels.size(0))
+        res = save_feat(feat, names, labels.size(0), md)
         _store.update(res[0])
         _feats += res[1]
         pgb.update(i)

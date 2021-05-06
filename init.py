@@ -84,6 +84,7 @@ class DataReader(Dataset):
                 self.person += 1
         pgb.finish()
         print('Data mode: '+self.st)
+        print('Data shape:', self.dataset[0].shape)
         if self.st == 'feat':
             self.feat = np.array(self.feat, dtype=float)
         self.label = np.array(self.label)

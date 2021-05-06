@@ -39,7 +39,7 @@ def get_img_pairs_list(**_store):
 
 
 def verification(**_store):
-    file = open(verificationPath)
+    file = open(verificationPath[test_data])
     st = file.readline()
     total = int(st)
     res_dist = []
@@ -108,8 +108,15 @@ def cross_acc(_dist, _ground_truth):
 
 def calc(filepath):
     store, feats = get(filepath, data)
-    # print(store)
-    _test_total, dist, ground_truth, _pos, _neg = verification(**store)
+    md = 'Lfw' in data.data_name
+    if md:
+        _test_total, dist, ground_truth = get_img_pairs_list(**store)
+        _pos = 3000
+        _neg = 3000
+    else:
+        _test_total, dist, ground_truth, _pos, _neg = verification(**store)
+        print(_pos, _neg)
+
     dist = np.array(dist)
     index = np.argsort(dist)[::-1]
     ground_truth = np.array(ground_truth)
@@ -118,13 +125,15 @@ def calc(filepath):
     _test_acc = get_acc(thresholds, _test_total, dist, ground_truth)
     print('Max test_acc: %.3f (threshold=%.5f)' % (_test_acc.max(), thresholds[_test_acc.argmax()]))
 
-    # _cross_validation = cross_acc(dist, ground_truth) / _test_total * 100
+    if md:
+        _cross_validation = cross_acc(dist, ground_truth) / _test_total * 100
 
     # Roc
     _true_ratio, max_test_acc, roc = global_calc(index, ground_truth, _test_total, _pos, _neg)
     eer = np.abs(1 - np.array(_true_ratio) - np.linspace(0, 1.0, len(_true_ratio)))
     print('Global Test Accuracy: %.3f ' % max_test_acc)
-    # print('Cross-validation Test Accuracy: %.3f' % _cross_validation)
+    if md:
+        print('Cross-validation Test Accuracy: %.3f' % _cross_validation)
     print('@FAR = 0.00000: TAR = %.5f' % _true_ratio[0])
     print('@FAR = 0.00100: TAR = %.5f' % _true_ratio[3])
     print('@FAR = 0.01000: TAR = %.5f' % _true_ratio[30])
@@ -160,12 +169,8 @@ def test_server():
 
 
 if __name__ == '__main__':
-    # data = DataReader('test', 'MegaLfw112')
-    # data = DataReader('test', 'MTLfwMix')
-    # data = DataReader('test', 'MTLfw')
-    # data = DataReader('test', 'RetinaLfw')
-    # data = DataReader('test', 'grimace')
-    data = DataReader('test', 'pie')
+    test_data = 'pie'
+    data = DataReader('test', test_data)
     length = 10000
     thresholds_left, thresholds_right = -0.0, 1.0
     thresholds = np.linspace(thresholds_left, thresholds_right, length)

@@ -58,7 +58,7 @@ def save_test(status, filepath):
 
 if __name__ == '__main__':
     # set config
-    data = DataReader('FTrain', 'MegaWeb112')
+    data = DataReader('FTrain', 'RetinaWebWarp')
     slides = (data.len - 1) // batch_size + 1
     grads = {}
 
