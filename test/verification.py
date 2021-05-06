@@ -3,9 +3,9 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 sys.path.append("..")
-from getFeat import get
+from r50Feat import get
 from init import DataReader
-from config import modelPath, pairsTxtPath, server, verificationPath
+from config import modelPath, server, verificationPath
 import socket
 import time
 
@@ -18,7 +18,7 @@ def get_distance(path0, path1, **__store):
 
 
 def get_img_pairs_list(**_store):
-    file = open(pairsTxtPath)
+    file = open(verificationPath[test_data])
     name_pattern = re.compile(r'[a-z|_\-]+', re.I)
     id_pattern = re.compile(r'[0-9]+')
     st = file.readline()
@@ -125,18 +125,17 @@ def calc(filepath):
     _test_acc = get_acc(thresholds, _test_total, dist, ground_truth)
     print('Max test_acc: %.3f (threshold=%.5f)' % (_test_acc.max(), thresholds[_test_acc.argmax()]))
 
-    if md:
-        _cross_validation = cross_acc(dist, ground_truth) / _test_total * 100
-
-    # Roc
+    # Specific
     _true_ratio, max_test_acc, roc = global_calc(index, ground_truth, _test_total, _pos, _neg)
     eer = np.abs(1 - np.array(_true_ratio) - np.linspace(0, 1.0, len(_true_ratio)))
     print('Global Test Accuracy: %.3f ' % max_test_acc)
+
     if md:
+        _cross_validation = cross_acc(dist, ground_truth) / _test_total * 100
         print('Cross-validation Test Accuracy: %.3f' % _cross_validation)
-    print('@FAR = 0.00000: TAR = %.5f' % _true_ratio[0])
-    print('@FAR = 0.00100: TAR = %.5f' % _true_ratio[3])
-    print('@FAR = 0.01000: TAR = %.5f' % _true_ratio[30])
+    print('@FAR = 0.00000: TAR = %.5f' % _true_ratio[round(_neg*0.000)])
+    print('@FAR = 0.00100: TAR = %.5f' % _true_ratio[round(_neg*0.001)])
+    print('@FAR = 0.01000: TAR = %.5f' % _true_ratio[round(_neg*0.010)])
     print('EER: %.5f' % _true_ratio[np.array(eer).argmin()])
     print('AUC: %.5f' % roc)
 

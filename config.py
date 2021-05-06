@@ -28,17 +28,18 @@ learning_rate = 0.001
 weight_decay = 0.0005
 milestones = np.array([36000, 54000]) * 512 // batch_size
 # modelName = 'resnetFace50_lr3654_m40_112'
-# modelName = 'resnet_face50_RetinaWeb112F_base5'
-modelName = 'resnet_face50_MegaWeb112F_base5'
+modelName = 'resnet_face50_RetinaWeb112F_base5'
+# modelName = 'resnet_face50_MegaWeb112F_base5'
 modelSavePath = '/data/shenzhonghai/FaceClustering/models/'+modelName
 modelPath = '/data/shenzhonghai/FaceClustering/models/'+modelName+'.tar'
 dp = 0.00
-pairsTxtPath = '/data/shenzhonghai/lfw/pairs.txt'
 verificationPath = {
+    'MegaLfw112': '/data/shenzhonghai/lfw/pairs.txt',
+    'RetinaLfwWrap': '/data/shenzhonghai/lfw/pairs.txt',
     'grimace': '/data/shenzhonghai/Face_Recognition_Data/grimace-pairs.txt',
     'faces96': '/data/shenzhonghai/Face_Recognition_Data/faces96-pairs.txt',
     'faces95': '/data/shenzhonghai/Face_Recognition_Data/faces95-pairs.txt',
-    'pie': '/data/shenzhonghai/PIE_dataset/pairs.txt'
+    'pie': '/data/shenzhonghai/PIE_dataset/pie-pairs.txt'
 }
 server = 2332
 

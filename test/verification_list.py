@@ -1,6 +1,7 @@
 import os
 import sys
 import numpy as np
+from config import verificationPath, dataPath
 
 
 class Logger(object):
@@ -41,10 +42,10 @@ def build_diff():
 
 
 if __name__ == "__main__":
-    path = '/data/shenzhonghai/Face_Recognition_Data/grimace/'
-    # path = '/data/shenzhonghai/Face_Recognition_Data/faces96-112x112/'
-    # path = '/data/shenzhonghai/PIE_dataset/test-112x112/'
+    data_name = 'pie'
+    path = dataPath[data_name]
     path_dir = os.listdir(path)
+
     imgs = []
     cls = []
     cnt = 0
@@ -57,7 +58,7 @@ if __name__ == "__main__":
         st[allDir] = cnt
         for allSon in child_dir:
             allSon = allSon.split('.')
-            imgs.append([allDir, allSon['PIE' not in path]])
+            imgs.append([allDir, allSon['pie' not in data_name]])
             cnt += 1
         ed[allDir] = cnt
     imgs = np.array(imgs)
@@ -66,9 +67,7 @@ if __name__ == "__main__":
     m = 3000
     pss = len(cls)
 
-    sys.stdout = Logger('/data/shenzhonghai/Face_Recognition_Data/grimace-pairs.txt', sys.stdout)
-    # sys.stdout = Logger('/data/shenzhonghai/Face_Recognition_Data/faces96-pairs.txt', sys.stdout)
-    # sys.stdout = Logger('/data/shenzhonghai/PIE_dataset/pairs.txt', sys.stdout)
+    sys.stdout = Logger(verificationPath[data_name], sys.stdout)
     np.random.seed(233)
     rng = np.random
     print(m+m)

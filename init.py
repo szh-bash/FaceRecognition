@@ -117,11 +117,13 @@ class DataReader(Dataset):
             image = cv2.resize(image, (size, size))
             image = image[idx:idx + H, idx:idx + W, :]
             image = np.transpose(image, [2, 0, 1])
+            image_flip = image.copy()[:, :, ::-1]
             image = torch.from_numpy((image - 127.5) / 128).float()
+            image_flip = torch.from_numpy((image_flip - 127.5) / 128).float()
             label = np.zeros(self.len)
             label[self.y[index]] = 1
             label = torch.from_numpy(label).float()
-            return image, label, self.name[index]
+            return image, image_flip, label, self.name[index]
         else:
             exit(-1)
 

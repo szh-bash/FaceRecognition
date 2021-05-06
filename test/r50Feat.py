@@ -71,8 +71,10 @@ def get(filepath, data):
                ' ', pb.ETA(),
                ' ', pb.FileTransferSpeed()]
     pgb = pb.ProgressBar(widgets=widgets, maxval=Total).start()
-    for i, (inputs, labels, names) in enumerate(data_loader):
+    for i, (inputs, inputs_flip, labels, names) in enumerate(data_loader):
         feat = model(inputs.to(device))
+        feat_flip = model(inputs_flip.to(device))
+        feat = (feat+feat_flip)/2
         res = save_feat(feat, names, labels.size(0), md)
         _store.update(res[0])
         _feats += res[1]
