@@ -22,7 +22,7 @@ def mixup(rng, image, label, image_sec, label_sec, alpha=0.05):
 
 def cutout(rng, img):
     img = img.copy()
-    if rng.rand() < 0.5:
+    if rng.rand() < 0.1:
         y = int(rng.rand() * H)
         x = int(rng.rand() * W)
         img[y:min(H, y+_CH), x:min(W, x+_CW), :] = 0
@@ -64,7 +64,7 @@ def rotate(rng, img):
     if rng.rand() < 0.3:
         ang = rng.rand()*30-15
         mat = cv2.getRotationMatrix2D((H / 2, W / 2), ang, 1)
-        img = cv2.warpAffine(img, mat, (H, W), borderValue=[255, 255, 255])
+        img = cv2.warpAffine(img, mat, (H, W), borderValue=[0, 0, 0])
     return img
 
 
@@ -73,12 +73,13 @@ def trans(rng, img):
     if rng.rand() < 0.3:
         dh = (rng.rand()*H - H/2)*0.2
         dw = (rng.rand()*W - W/2)*0.2
-        mat = np.float32([[1, 0, dh], [0, 1, dw]])
-        img = cv2.warpAffine(img, mat, (H, W), borderValue=[255, 255, 255])
+        mat = np.array([[1, 0, dh], [0, 1, dw]], dtype=np.float64)
+        img = cv2.warpAffine(img, mat, (H, W), borderValue=[0, 0, 0])
     return img
 
 
 def run(rng, img):
+    img = cutout(rng, img)
     img = rotate(rng, img)
     img = trans(rng, img)
     img = gaussian_blur(rng, img)
