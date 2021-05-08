@@ -27,15 +27,17 @@ def get_img_pairs_list(**_store):
     total = times * batches * 2
     res_dist = []
     res_gt = []
+    lst = []
     for i in range(total):
         st = file.readline()
+        lst.append(st)
         flag = (i//batches) & 1
         names = name_pattern.findall(st)
         ids = id_pattern.findall(st)
         res_dist.append(get_distance(names[0]+'/'+ids[0], names[flag]+'/'+ids[1], **_store))
         res_gt.append(flag ^ 1)
     file.close()
-    return total, res_dist, res_gt
+    return total, res_dist, res_gt, lst
 
 
 def verification(**_store):
@@ -46,14 +48,16 @@ def verification(**_store):
     res_gt = []
     pos = 0
     neg = 0
+    lst = []
     for i in range(total):
-        st = file.readline().split(' ')
+        st = file.readline()[:-1].split(' ')
         res_dist.append(get_distance(st[0]+'/'+st[1], st[2]+'/'+st[3], **_store))
         res_gt.append(int(st[4]))
         pos += int(st[4])
         neg += 1 ^ int(st[4])
+        lst.append(st)
     file.close()
-    return total, res_dist, res_gt, pos, neg
+    return total, res_dist, res_gt, pos, neg, lst
 
 
 def get_acc(threshold_list, cases, dist, ground_truth):
@@ -106,16 +110,24 @@ def cross_acc(_dist, _ground_truth):
     return res/10
 
 
+def print_wrong_sample(dist, ground_truth, threshold, lst):
+    res = (dist > threshold) != ground_truth
+    for i in range(len(res)):
+        if not res[i]:
+            continue
+        print(lst[i])
+
+
 def calc(filepath):
-    store, feats = get(filepath, data)
+    store, feats, sps = get(filepath, data)
     md = 'Lfw' in data.data_name
     if md:
-        _test_total, dist, ground_truth = get_img_pairs_list(**store)
-        _pos = 3000
-        _neg = 3000
+        _test_total, dist, ground_truth, lst = get_img_pairs_list(**store)
+        pos = 3000
+        neg = 3000
     else:
-        _test_total, dist, ground_truth, _pos, _neg = verification(**store)
-        print(_pos, _neg)
+        _test_total, dist, ground_truth, pos, neg, lst = verification(**store)
+        print(pos, neg)
 
     dist = np.array(dist)
     index = np.argsort(dist)[::-1]
@@ -123,25 +135,25 @@ def calc(filepath):
 
     # Approximate test_acc
     _test_acc = get_acc(thresholds, _test_total, dist, ground_truth)
-    print('Max test_acc: %.3f (threshold=%.5f)' % (_test_acc.max(), thresholds[_test_acc.argmax()]))
+    threshold = thresholds[_test_acc.argmax()]
+    print('Max test_acc: %.3f (threshold=%.5f)' % (_test_acc.max(), threshold))
 
     # Specific
-    _true_ratio, max_test_acc, roc = global_calc(index, ground_truth, _test_total, _pos, _neg)
+    _true_ratio, max_test_acc, roc = global_calc(index, ground_truth, _test_total, pos, neg)
     eer = np.abs(1 - np.array(_true_ratio) - np.linspace(0, 1.0, len(_true_ratio)))
     print('Global Test Accuracy: %.3f ' % max_test_acc)
 
     if md:
         _cross_validation = cross_acc(dist, ground_truth) / _test_total * 100
         print('Cross-validation Test Accuracy: %.3f' % _cross_validation)
-    print('@FAR = 0.00000: TAR = %.5f' % _true_ratio[round(_neg*0.000)])
-    print('@FAR = 0.00100: TAR = %.5f' % _true_ratio[round(_neg*0.001)])
-    print('@FAR = 0.01000: TAR = %.5f' % _true_ratio[round(_neg*0.010)])
+    print('@FAR = 0.00001: TAR = %.5f' % _true_ratio[int(neg*0.00001)])
+    print('@FAR = 0.00010: TAR = %.5f' % _true_ratio[int(neg*0.00010)])
+    print('@FAR = 0.00100: TAR = %.5f' % _true_ratio[int(neg*0.00100)])
+    print('@FAR = 0.01000: TAR = %.5f' % _true_ratio[int(neg*0.01000)])
     print('EER: %.5f' % _true_ratio[np.array(eer).argmin()])
     print('AUC: %.5f' % roc)
 
-    # lfw-test
-
-    return _test_acc, _test_total, _true_ratio
+    return _test_acc, _test_total, _true_ratio, dist, ground_truth, threshold, lst
 
 
 def link_handler(link):
@@ -168,13 +180,13 @@ def test_server():
 
 
 if __name__ == '__main__':
-    test_data = 'RetinaLfwCenter'
+    test_data = 'faces95C'
     data = DataReader('test', test_data)
     length = 10000
     thresholds_left, thresholds_right = -0.0, 1.0
     thresholds = np.linspace(thresholds_left, thresholds_right, length)
     # test_server()
-    test_acc, test_total, true_ratio = calc(modelPath)
+    test_acc, test_total, true_ratio, _dist, _ground_truth, _threshold, _lst = calc(modelPath)
 
     # plotting test_acc
     fig, ax1 = plt.subplots()
@@ -191,3 +203,4 @@ if __name__ == '__main__':
     fig.legend(bbox_to_anchor=(0.6, 1.), bbox_transform=ax1.transAxes)
     plt.show()
     print(modelPath)
+    print_wrong_sample(_dist, _ground_truth, _threshold, _lst)

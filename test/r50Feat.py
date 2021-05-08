@@ -15,6 +15,7 @@ from config import test_batch_size as batch_size
 def save_feat(ft, name_list, lim, md):
     __store = {}
     __feats = []
+    __sps = {}
     ft = ft.cpu()
     for dx in range(lim):
         filepath, filename = os.path.split(name_list[dx])
@@ -34,6 +35,10 @@ def save_feat(ft, name_list, lim, md):
             filpg, name = os.path.split(filepath)
             idx = int(filename.split('.')[0])
 
+        if name in __sps:
+            __sps[name].append(name + '/' + str(idx))
+        else:
+            __sps[name] = [name + '/' + str(idx)]
         __store[name + '/' + str(idx)] = ft[dx].data.numpy()
         __feats.append(ft[dx].data.numpy())
         # if not os.path.exists(path+name):
@@ -42,12 +47,13 @@ def save_feat(ft, name_list, lim, md):
         # ftx = ftx.tolist()
         # pt = pd.DataFrame(data=ftx)
         # pt.to_csv(path+name+'/'+str(idx), mode='w', index=None, header=None)
-    return __store, __feats
+    return __store, __feats, __sps
 
 
 def get(filepath, data):
     _store = {}
     _feats = []
+    _sps = {}
     dataname = data.data_name
     print(dataname)
     md = 0 if 'Lfw' in dataname else 2 if 'pie' in dataname else 1
@@ -75,9 +81,14 @@ def get(filepath, data):
         feat = model(inputs.to(device))
         feat_flip = model(inputs_flip.to(device))
         feat = (feat+feat_flip)/2
-        res = save_feat(feat, names, labels.size(0), md)
-        _store.update(res[0])
-        _feats += res[1]
+        __store, __feats, __sps = save_feat(feat, names, labels.size(0), md)
+        _store.update(__store)
+        _feats += __feats
+        for x in __sps:
+            if x in _sps:
+                _sps[x] += __sps[x]
+            else:
+                _sps[x] = __sps[x]
         pgb.update(i)
     pgb.finish()
     print('epoch: %d\niters: %d\nloss: %.3lf\ntrain_acc: %.3lf' %
@@ -86,7 +97,7 @@ def get(filepath, data):
            checkpoint['loss'],
            checkpoint['acc']
            ))
-    return _store, _feats
+    return _store, _feats, _sps
 
 
 if __name__ == '__main__':
