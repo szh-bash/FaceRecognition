@@ -180,7 +180,7 @@ def test_server():
 
 
 if __name__ == '__main__':
-    test_data = 'faces95C'
+    test_data = 'faces94C'
     data = DataReader('test', test_data)
     length = 10000
     thresholds_left, thresholds_right = -0.0, 1.0
@@ -203,4 +203,4 @@ if __name__ == '__main__':
     fig.legend(bbox_to_anchor=(0.6, 1.), bbox_transform=ax1.transAxes)
     plt.show()
     print(modelPath)
-    print_wrong_sample(_dist, _ground_truth, _threshold, _lst)
+    # print_wrong_sample(_dist, _ground_truth, _threshold, _lst)

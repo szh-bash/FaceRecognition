@@ -37,7 +37,7 @@ def identify(cls):
 
 
 if __name__ == '__main__':
-    test_data = 'faces95C'
+    test_data = 'faces94C'
     filepath = dataPath[test_data]
     print(filepath)
     data_base = DataReader('test', 'RetinaLfwCenter')
