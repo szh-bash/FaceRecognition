@@ -21,7 +21,7 @@ dataPath = {
 # train/test
 batch_size = 256
 Total = 36 * batch_size // 256
-test_batch_size = 1
+test_batch_size = 32
 learning_rate = 0.001
 weight_decay = 0.0005
 milestones = np.array([36000, 54000])

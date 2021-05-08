@@ -1,15 +1,9 @@
-import re
 import sys
 import numpy as np
-import matplotlib.pyplot as plt
 sys.path.append("..")
-from r50Feat import get
 from init import DataReader
-from config import modelPath, server, verificationPath
-import socket
-import time
 from r50Feat import get
-from config import modelPath, server, verificationPath, dataPath
+from config import modelPath, dataPath
 
 
 def get_distance(feat0, feat1):
