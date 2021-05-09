@@ -106,7 +106,8 @@ def cross_acc(_dist, _ground_truth):
             if pos - neg >= ma:
                 ma = pos - neg
                 threshold = p[idx]
-        res += ((_dist > threshold) == _ground_truth).sum()
+        res += (((_dist > threshold) == _ground_truth).sum() -
+                ((p > threshold) == gt).sum())/(600*9)
     return res/10
 
 
@@ -144,7 +145,7 @@ def calc(filepath):
     print('Global Test Accuracy: %.3f ' % max_test_acc)
 
     if md:
-        _cross_validation = cross_acc(dist, ground_truth) / _test_total * 100
+        _cross_validation = cross_acc(dist, ground_truth) * 100
         print('Cross-validation Test Accuracy: %.3f' % _cross_validation)
     print('@FAR = 0.00001: TAR = %.5f' % _true_ratio[int(neg*0.00001)])
     print('@FAR = 0.00010: TAR = %.5f' % _true_ratio[int(neg*0.00010)])
@@ -180,12 +181,12 @@ def test_server():
 
 
 if __name__ == '__main__':
-    test_data = 'faces94C'
+    test_data = 'RetinaLfwCenter'
     data = DataReader('test', test_data)
     length = 10000
     thresholds_left, thresholds_right = -0.0, 1.0
     thresholds = np.linspace(thresholds_left, thresholds_right, length)
-    # test_server()
+    test_server()
     test_acc, test_total, true_ratio, _dist, _ground_truth, _threshold, _lst = calc(modelPath)
 
     # plotting test_acc
@@ -203,4 +204,5 @@ if __name__ == '__main__':
     fig.legend(bbox_to_anchor=(0.6, 1.), bbox_transform=ax1.transAxes)
     plt.show()
     print(modelPath)
+    print(test_data)
     # print_wrong_sample(_dist, _ground_truth, _threshold, _lst)

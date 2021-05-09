@@ -31,7 +31,7 @@ def identify(cls):
 
 
 if __name__ == '__main__':
-    test_data = 'faces94C'
+    test_data = 'pieCC'
     filepath = dataPath[test_data]
     print(filepath)
     data_base = DataReader('test', 'RetinaLfwCenter')
@@ -45,4 +45,6 @@ if __name__ == '__main__':
         pos_sum += pos
         cnt_sum += cnt
     print("Rank 1 Acc@1e-5: %.3f" % (pos_sum/cnt_sum*100))
+    print(modelPath)
+    print(test_data)
 

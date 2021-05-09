@@ -267,7 +267,7 @@ if __name__ == '__main__':
     elif 'WebFace' in origin_path:
         md = 0
     else:
-        md = 1
+        md = 0
 
     print(origin_path+' to '+target_path)
     print('Align mode: %s' % mode)

@@ -1,1 +1,1 @@
-CUDA_VISIBLE_DEICES="4,5,6,1" python -u train.py | tee /data/shenzhonghai/FaceClustering/logs/train_log_resnetFace50_RetinaWeb112FC_m40_border0_cutout.logV
+CUDA_VISIBLE_DEVICES="4,5,6,1" python -u train.py | tee -a /data/shenzhonghai/FaceClustering/logs/train_log_resnetFace50_RetinaWeb112FC_m50_border0.log

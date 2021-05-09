@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 from model.resnet import resnet_face50
 from loss import ArcMarginProduct as ArcFace
 
-from config import learning_rate, batch_size, weight_decay, Total, modelSavePath, server, milestones
+from config import momentum, learning_rate, batch_size, weight_decay, Total, modelSavePath, server, milestones
 from init import DataReader
 
 
@@ -68,15 +68,20 @@ if __name__ == '__main__':
     device = torch.device("cuda:0")
     if torch.cuda.device_count() > 1:
         devices_ids = [i for i in range(torch.cuda.device_count())]
+        print(devices_ids)
         net = nn.DataParallel(net, device_ids=devices_ids)
         print("Let's use %d/%d GPUs!" % (len(devices_ids), torch.cuda.device_count()))
     net.to(device)
     data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
     arcFace = ArcFace(512, data.person).to(device)
     criterion = nn.CrossEntropyLoss().to(device)
-    optimizer = optim.Adam([{'params': net.parameters()},
-                            {'params': arcFace.parameters()}],
-                           lr=learning_rate, weight_decay=weight_decay)
+    # optimizer = optim.Adam([{'params': net.parameters()},
+    #                         {'params': arcFace.parameters()}],
+    #                        lr=learning_rate, weight_decay=weight_decay)
+    optimizer = optim.SGD([{'params': net.parameters()},
+                           {'params': arcFace.parameters()}],
+                          lr=learning_rate, weight_decay=weight_decay,
+                          momentum=momentum)
     scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1, last_epoch=-1)
     print(net.parameters())
     print(arcFace.parameters())
@@ -88,6 +93,9 @@ if __name__ == '__main__':
         scheduler.load_state_dict(checkpoint['scheduler'])
         epoch_start = checkpoint['epoch']
         iter_start = checkpoint['iter']
+        scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1, last_epoch=-1)
+        for i in range(iter_start):
+            scheduler.step()
         print('Load checkpoint Successfully!')
         print('epoch: %d\niter: %d' % (epoch_start, iter_start))
         print(scheduler.state_dict())

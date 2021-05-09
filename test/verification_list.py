@@ -42,7 +42,7 @@ def build_diff():
 
 
 if __name__ == "__main__":
-    data_name = 'faces94C'
+    data_name = 'pieCC'
     path = dataPath[data_name]
     path_dir = os.listdir(path)
 
