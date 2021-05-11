@@ -1,5 +1,9 @@
 # FaceRecognition
 
+## Train
+CASIA-WebFace (Clean, exclude LFW)
+Cutout, rotation, transmission, blur, flip
+
 ## Align
 
 RetinaFace public model
