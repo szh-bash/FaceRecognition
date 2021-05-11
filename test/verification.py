@@ -60,55 +60,41 @@ def verification(**_store):
     return total, res_dist, res_gt, pos, neg, lst
 
 
-def get_acc(threshold_list, cases, dist, ground_truth):
+def get_acc(cases, dist, ground_truth):
     res = []
-    for threshold in threshold_list:
-        res.append(((dist > threshold) == ground_truth).sum())
+    for x in thresholds:
+        res.append(((dist > x) == ground_truth).sum())
     res = np.array(res) / cases * 100
     return res
 
 
-def global_calc(_index, _ground_truth, __test_total, __pos, __neg):
-    _roc = 0
+def global_calc(index, ground_truth, __test_total, __pos, __neg):
+    roc = 0
     pos = 0
     neg = 0
-    _max_test_acc = 0
+    max_test_acc = 0
     __true_ratio = [0]
-    for idx in _index:
-        if _ground_truth[idx]:
+    for idx in index:
+        if ground_truth[idx]:
             pos += 1
-            # if len(__true_ratio) > 0:
             __true_ratio[-1] += 1 / __pos
         else:
             neg += 1
-            # if len(__true_ratio) > 0:
-            _roc += pos * pow(1 / __pos, 2)
+            roc += pos * pow(1 / __pos, 2)
             __true_ratio.append(pos / __pos)
-        _max_test_acc = max(_max_test_acc, (pos+__neg-neg)/__test_total)
-    return __true_ratio, _max_test_acc*100, _roc
+        max_test_acc = max(max_test_acc, (pos+__neg-neg)/__test_total)
+    return __true_ratio, max_test_acc*100, roc
 
 
-def cross_acc(_dist, _ground_truth):
-    res = 0
+def cross_acc(dist, ground_truth):
+    res = []
     for i in range(10):
-        p = _dist[i*600:(i+1)*600].copy()
-        gt = _ground_truth[i*600:(i+1)*600].copy()
-        _index = np.argsort(p)[::-1]
-        pos = 0
-        neg = 0
-        ma = 0
-        threshold = 0
-        for idx in _index:
-            if gt[idx]:
-                pos += 1
-            else:
-                neg += 1
-            if pos - neg >= ma:
-                ma = pos - neg
-                threshold = p[idx]
-        res += (((_dist > threshold) == _ground_truth).sum() -
-                ((p > threshold) == gt).sum())/(600*9)
-    return res/10
+        p = dist[i*600:(i+1)*600].copy()
+        gt = ground_truth[i*600:(i+1)*600].copy()
+        res.append(max((((dist > x) == ground_truth).sum() - ((p > x) == gt).sum()) for x in thresholds)/5400*100)
+    ave = np.mean(res)
+    std = np.std(res)
+    return ave, std
 
 
 def print_wrong_sample(dist, ground_truth, threshold, lst):
@@ -135,7 +121,7 @@ def calc(filepath):
     ground_truth = np.array(ground_truth)
 
     # Approximate test_acc
-    _test_acc = get_acc(thresholds, _test_total, dist, ground_truth)
+    _test_acc = get_acc(_test_total, dist, ground_truth)
     threshold = thresholds[_test_acc.argmax()]
     print('Max test_acc: %.3f (threshold=%.5f)' % (_test_acc.max(), threshold))
 
@@ -145,8 +131,8 @@ def calc(filepath):
     print('Global Test Accuracy: %.3f ' % max_test_acc)
 
     if md:
-        _cross_validation = cross_acc(dist, ground_truth) * 100
-        print('Cross-validation Test Accuracy: %.3f' % _cross_validation)
+        cross_val, cross_std = cross_acc(dist, ground_truth)
+        print('Cross-validation Test Accuracy: %.3f%c%.3f' % (cross_val, chr(177), cross_std))
     print('@FAR = 0.00001: TAR = %.5f' % _true_ratio[int(neg*0.00001)])
     print('@FAR = 0.00010: TAR = %.5f' % _true_ratio[int(neg*0.00010)])
     print('@FAR = 0.00100: TAR = %.5f' % _true_ratio[int(neg*0.00100)])
@@ -181,12 +167,12 @@ def test_server():
 
 
 if __name__ == '__main__':
-    test_data = 'RetinaLfwCenter'
+    test_data = 'grimaceC'
     data = DataReader('test', test_data)
     length = 10000
     thresholds_left, thresholds_right = -0.0, 1.0
     thresholds = np.linspace(thresholds_left, thresholds_right, length)
-    test_server()
+    # test_server()
     test_acc, test_total, true_ratio, _dist, _ground_truth, _threshold, _lst = calc(modelPath)
 
     # plotting test_acc

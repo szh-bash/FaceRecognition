@@ -166,6 +166,7 @@ def warp_im(img_im, orgi_landmarks, tar_landmarks):
     pts2 = np.float64(np.matrix([[point[0], point[1]] for point in tar_landmarks]))
     M = transformation_from_points(pts1, pts2)
     dst = cv2.warpAffine(img_im, M[:2], (img_im.shape[1], img_im.shape[0]))
+    # dst = cv2.warpAffine(img_im, M[:2], (img_im.shape[1], img_im.shape[0]), borderMode=cv2.BORDER_REPLICATE)
     return dst
 
 

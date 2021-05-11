@@ -75,13 +75,13 @@ if __name__ == '__main__':
     data_loader = DataLoader(dataset=data, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
     arcFace = ArcFace(512, data.person).to(device)
     criterion = nn.CrossEntropyLoss().to(device)
-    # optimizer = optim.Adam([{'params': net.parameters()},
-    #                         {'params': arcFace.parameters()}],
-    #                        lr=learning_rate, weight_decay=weight_decay)
-    optimizer = optim.SGD([{'params': net.parameters()},
-                           {'params': arcFace.parameters()}],
-                          lr=learning_rate, weight_decay=weight_decay,
-                          momentum=momentum)
+    optimizer = optim.Adam([{'params': net.parameters()},
+                            {'params': arcFace.parameters()}],
+                           lr=learning_rate, weight_decay=weight_decay)
+    # optimizer = optim.SGD([{'params': net.parameters()},
+    #                        {'params': arcFace.parameters()}],
+    #                       lr=learning_rate, weight_decay=weight_decay,
+    #                       momentum=momentum)
     scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1, last_epoch=-1)
     print(net.parameters())
     print(arcFace.parameters())
@@ -168,6 +168,9 @@ if __name__ == '__main__':
                  'loss': loss_bc,
                  'acc': acc_bc}
         save_test(state, modelSavePath+'.tar')
+        if epoch > 31:
+            torch.save(state, '%s_%s.tar' % (modelSavePath, str(epoch)))
+            print('Model saved to %s_%s.tar' % (modelSavePath, str(epoch)))
 
     save_test(None, 'exit')
     print('fydnb!')

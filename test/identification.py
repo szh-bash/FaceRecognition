@@ -11,11 +11,16 @@ def get_distance(feat0, feat1):
 
 
 def identify(cls):
+    if len(sps_test[cls]) < 2:
+        return 0, 0
     ma = {}
     _pos = 0
     _cnt = 0
+    lst = []
     for sp in sps_test[cls]:
-        lst = [get_distance(store_test[sp], store_base[a]) for a in store_base]
+        for a in store_base:
+            if cls not in a.split('/')[0]:
+                lst.append(get_distance(store_test[sp], store_base[a]))
         ma[sp] = max(lst)
         for b in store_test:
             if cls not in b:
@@ -31,7 +36,7 @@ def identify(cls):
 
 
 if __name__ == '__main__':
-    test_data = 'pieCC'
+    test_data = 'RetinaLfwCenter'
     filepath = dataPath[test_data]
     print(filepath)
     data_base = DataReader('test', 'RetinaLfwCenter')

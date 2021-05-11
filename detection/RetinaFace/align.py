@@ -22,7 +22,8 @@ def retina_face(img_path):
     # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     if 'PIE' in img_path:
         # border 64 -> 112
-        img = cv2.copyMakeBorder(img, 24, 24, 24, 24, cv2.BORDER_CONSTANT, value=[0, 0, 0])
+        # img = cv2.copyMakeBorder(img, 24, 24, 24, 24, cv2.BORDER_CONSTANT, value=[0, 0, 0])
+        img = cv2.copyMakeBorder(img, 24, 24, 24, 24, cv2.BORDER_REPLICATE)
     im_shape = img.shape
     target_size = scales[0]
     max_size = scales[1]

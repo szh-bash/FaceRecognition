@@ -17,7 +17,7 @@ def sqr(a):
 
 
 if __name__ == '__main__':
-    test_data = 'faces96C'
+    test_data = 'pie'
     filepath = dataPath[test_data]
     print(filepath)
     data = DataReader('test', test_data)
@@ -29,13 +29,14 @@ if __name__ == '__main__':
     col = []
     name = []
     cnt = 0
-    up = 6
+    up = 9
     cls_col = list(range(0, up))
     for cls in sps:
         if cnt == up:
             break
         for x in sps[cls]:
             ft = store[x]
+            ft /= np.linalg.norm(ft)
             ft -= np.mean(ft)
             ft /= np.std(ft)
             X.append(ft)
