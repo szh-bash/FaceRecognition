@@ -159,7 +159,8 @@ class SEBlock(nn.Module):
 
 
 class ResNetFace(nn.Module):
-    def __init__(self, block, layers, use_se=True):
+    def __init__(self, block, layers, use_se=True, test=False):
+        self.test = test
         self.inplanes = 64
         self.use_se = use_se
         super(ResNetFace, self).__init__()
@@ -204,35 +205,24 @@ class ResNetFace(nn.Module):
 
         return nn.Sequential(*layers)
 
-    def forward(self, x):
-        # print(x.size())
+    def forward(self, x, test=False):
         x = self.conv1(x)
-        # print(x.size())
         x = self.bn1(x)
-        # print(x.size())
         x = self.prelu(x)
-        # print(x.size())
         x = self.maxpool(x)
-        # print(x.size())
 
         x = self.layer1(x)
-        # print(x.size())
         x = self.layer2(x)
-        # print(x.size())
         x = self.layer3(x)
-        # print(x.size())
         x = self.layer4(x)  # 512*7*7
-        # print(x.size())
         x = self.bn4(x)
-        # print(x.size())
         x = self.dropout(x)
-        # print(x.size())
         x = x.view(x.size(0), -1)
-        # print(x.size())
         x = self.fc5(x)
-        # print(x.size())
+        # if self.test:
+        #     print('True')
+        #     return x
         x = self.bn5(x)
-        # print(x.size())
 
         return x
 

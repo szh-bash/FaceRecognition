@@ -62,11 +62,17 @@ def get(filepath, data):
 
     # load model
     device = torch.device('cuda:0')
-    model = resnet_face50().cuda()
+    model = resnet_face50(test=True).cuda()
     # model = resnet50().cuda()
     checkpoint = torch.load(filepath)
     model.load_state_dict({k.replace('module.', ''): v for k, v in checkpoint['net'].items()})
     model.eval()  # DropOut/BN
+    print('epoch: %d\niters: %d\nloss: %.3lf\ntrain_acc: %.3lf' %
+          (checkpoint['epoch'],
+           checkpoint['iter'],
+           checkpoint['loss'],
+           checkpoint['acc'],
+           ))
 
     # get feat
     print('Calculating Feature Map...')
@@ -91,12 +97,7 @@ def get(filepath, data):
                 _sps[x] = __sps[x]
         pgb.update(i)
     pgb.finish()
-    print('epoch: %d\niters: %d\nloss: %.3lf\ntrain_acc: %.3lf' %
-          (checkpoint['epoch'],
-           checkpoint['iter'],
-           checkpoint['loss'],
-           checkpoint['acc']
-           ))
+    # print(checkpoint['arc'])
     return _store, _feats, _sps
 
 

@@ -168,9 +168,9 @@ if __name__ == '__main__':
                  'loss': loss_bc,
                  'acc': acc_bc}
         save_test(state, modelSavePath+'.tar')
-        if epoch > 31:
-            torch.save(state, '%s_%s.tar' % (modelSavePath, str(epoch)))
-            print('Model saved to %s_%s.tar' % (modelSavePath, str(epoch)))
+        # if epoch > 31:
+        #     torch.save(state, '%s_%s.tar' % (modelSavePath, str(epoch)))
+        #     print('Model saved to %s_%s.tar' % (modelSavePath, str(epoch)))
 
     save_test(None, 'exit')
     print('fydnb!')

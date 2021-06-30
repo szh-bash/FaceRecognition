@@ -167,7 +167,7 @@ def test_server():
 
 
 if __name__ == '__main__':
-    test_data = 'grimaceC'
+    test_data = 'RetinaLfwCenter'
     data = DataReader('test', test_data)
     length = 10000
     thresholds_left, thresholds_right = -0.0, 1.0

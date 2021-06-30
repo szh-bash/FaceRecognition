@@ -80,8 +80,8 @@ def trans(rng, img):
 
 def run(rng, img):
     img = cutout(rng, img)
-    img = rotate(rng, img)
-    img = trans(rng, img)
+    # img = rotate(rng, img)
+    # img = trans(rng, img)
     img = gaussian_blur(rng, img)
     img = flip(rng, img)
     img = np.transpose(img, [2, 0, 1])
